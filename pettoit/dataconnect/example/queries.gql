@@ -1,0 +1,51 @@
+query AllPets @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  pets {
+    id
+    name
+    type
+    breed
+    profilePictureUrl
+    owner {
+      displayName
+    }
+  }
+}
+
+query MyPosts @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  posts(where: { authorId: { eq_expr: "auth.uid" } }) {
+    id
+    caption
+    mediaUrl
+    createdAt
+    pet {
+      name
+    }
+  }
+}
+
+mutation CreatePost($caption: String!, $mediaUrl: String!, $petId: UUID) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  post_insert(
+    data: {
+      authorId_expr: "auth.uid"
+      caption: $caption
+      mediaUrl: $mediaUrl
+      petId: $petId
+      createdAt_expr: "request.time"
+    }
+  ) {
+    id
+  }
+}
+
+mutation LikePost($postId: UUID!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  like_upsert(
+    data: {
+      userId_expr: "auth.uid"
+      postId: $postId
+      createdAt_expr: "request.time"
+    }
+  ) {
+    userId
+    postId
+  }
+}

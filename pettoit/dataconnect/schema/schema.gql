@@ -1,0 +1,58 @@
+type User @table {
+  username: String!
+  email: String!
+  createdAt: Timestamp!
+  displayName: String
+  profilePictureUrl: String
+  bio: String
+  location: String
+}
+
+type Pet @table {
+  owner: User!
+  name: String!
+  type: String!
+  breed: String!
+  gender: String!
+  dateOfBirth: Date!
+  createdAt: Timestamp!
+  profilePictureUrl: String
+  bio: String
+  weight: Float
+  isSpayedNeutered: Boolean
+}
+
+type Post @table {
+  author: User!
+  pet: Pet
+  caption: String!
+  mediaUrl: String!
+  createdAt: Timestamp!
+  location: String
+  tags: [String]
+}
+
+type Comment @table {
+  author: User!
+  post: Post!
+  text: String!
+  createdAt: Timestamp!
+}
+
+type Like @table(key: ["user", "post"]) {
+  user: User!
+  post: Post!
+  createdAt: Timestamp!
+}
+
+type Event @table {
+  creator: User!
+  title: String!
+  description: String!
+  location: String!
+  dateTime: Timestamp!
+  createdAt: Timestamp!
+  imageUrl: String
+  isPublic: Boolean
+  rsvpCount: Int
+}

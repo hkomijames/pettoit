@@ -1,0 +1,13 @@
+# Specific rules for search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Rules for everyone else
+User-agent: *
+Allow: /
+
+# The exact path to your dynamic sitemap function
+Sitemap: https://pettoit.com/sitemap.xml

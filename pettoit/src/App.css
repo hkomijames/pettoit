@@ -1,0 +1,123 @@
+
+.profilePic {
+  background-color: whitesmoke;
+  z-index: 1;
+}
+
+.profilecard {
+  margin: 1rem auto 0;
+}
+
+.editForm {
+  height: 60vh;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+
+.tabs {
+  margin: 1rem auto;
+}
+
+.tabs [role="tablist"] {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+[role="tab"] {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  background: var(--wheat);
+  border: 1px solid #ccc;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+[role="tab"][aria-selected="true"] {
+  background: var(--sea-green);
+  border-bottom: 3px solid var(--primary-color);
+  color: white;
+}
+
+[role="tabpanel"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 0.5rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post-success-message {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+body {
+  background-color: var(--sea-green);
+  font-family: 'Poppins', sans-serif;
+  scroll-behavior: smooth;
+  margin-bottom: 50px;
+}
+
+.nav {
+  background-color: var(--gotham-green);
+}
+
+.register-login-btn {
+  background-color: var(--sea-green);
+  color: white;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.register-login-btn:hover, .login-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--wheat);
+}
+
+.login-btn {
+  background-color: var(--gotham-green);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  border: none;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+input {
+  background-color: var(--primary-color);
+  border-radius: 5px;
+  border: 2px solid var(--gotham-green);
+  color: white;
+}
+
+input::placeholder {
+  color: var(--wheat);
+  opacity: 0.7;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--gotham-green);
+  box-shadow: 0 0 5px var(--golden-yellow);
+}
+
+textarea {
+  resize: none;
+}
+
+#follow-btn {
+  background-color: var(--gotham-green);
+  color: white;
+  cursor: pointer;
+  padding: 0 10px;
+  border-radius: 50px;
+  font-weight: bold
+}

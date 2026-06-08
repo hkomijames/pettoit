@@ -1,0 +1,141 @@
+mutation CreateDemoData @transaction @auth(level: USER, insecureReason: "Seed data is for development and testing purposes only and should not be accessible in production environments without proper authorization controls.") {
+  user_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      username: "petlover1",
+      email: "petlover1@example.com",
+      displayName: "Pet Lover One",
+      bio: "Loves all furry friends!",
+      location: "San Francisco, CA",
+      profilePictureUrl: "https://example.com/petlover1.jpg",
+      createdAt: "2023-01-15T10:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      username: "dogwalker_pro",
+      email: "dogwalker@example.com",
+      displayName: "Dog Walker Pro",
+      bio: "Professional dog walker and trainer.",
+      location: "New York, NY",
+      profilePictureUrl: "https://example.com/dogwalker.jpg",
+      createdAt: "2023-02-20T11:30:00Z"
+    }
+  ])
+  pet_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440010",
+      ownerId: "550e8400-e29b-41d4-a716-446655440000",
+      name: "Buddy",
+      type: "Dog",
+      breed: "Golden Retriever",
+      gender: "Male",
+      dateOfBirth: "2020-05-10",
+      isSpayedNeutered: true,
+      weight: 30.5,
+      bio: "A playful golden retriever who loves belly rubs.",
+      profilePictureUrl: "https://example.com/buddy.jpg",
+      createdAt: "2023-01-20T12:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440011",
+      ownerId: "550e8400-e29b-41d4-a716-446655440000",
+      name: "Whiskers",
+      type: "Cat",
+      breed: "Siamese",
+      gender: "Female",
+      dateOfBirth: "2021-03-01",
+      isSpayedNeutered: true,
+      weight: 4.2,
+      bio: "An elegant Siamese cat who enjoys sunbathing.",
+      profilePictureUrl: "https://example.com/whiskers.jpg",
+      createdAt: "2023-01-22T14:15:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440012",
+      ownerId: "550e8400-e29b-41d4-a716-446655440001",
+      name: "Max",
+      type: "Dog",
+      breed: "German Shepherd",
+      gender: "Male",
+      dateOfBirth: "2019-11-25",
+      isSpayedNeutered: true,
+      weight: 40.0,
+      bio: "A loyal and energetic German Shepherd, great for walks.",
+      profilePictureUrl: "https://example.com/max.jpg",
+      createdAt: "2023-02-25T09:00:00Z"
+    }
+  ])
+  post_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440020",
+      authorId: "550e8400-e29b-41d4-a716-446655440000",
+      petId: "550e8400-e29b-41d4-a716-446655440010",
+      caption: "Enjoying a beautiful day at the park with Buddy! #dogsofinstagram #goldenretriever",
+      mediaUrl: "https://example.com/buddy_park.jpg",
+      location: "Golden Gate Park, San Francisco",
+      tags: ["dog", "golden retriever", "park"],
+      createdAt: "2023-03-01T15:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440021",
+      authorId: "550e8400-e29b-41d4-a716-446655440000",
+      petId: "550e8400-e29b-41d4-a716-446655440011",
+      caption: "Whiskers is in her favorite sun spot again. So regal! #catlife #siamesecat",
+      mediaUrl: "https://example.com/whiskers_sun.jpg",
+      tags: ["cat", "siamese", "sunbath"],
+      createdAt: "2023-03-02T10:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440022",
+      authorId: "550e8400-e29b-41d4-a716-446655440001",
+      petId: "550e8400-e29b-41d4-a716-446655440012",
+      caption: "Morning walk with Max. He loves exploring new scents! #germanshepherd #dogwalking",
+      mediaUrl: "https://example.com/max_walk.jpg",
+      location: "Central Park, New York",
+      tags: ["dog", "german shepherd", "walk"],
+      createdAt: "2023-03-03T08:30:00Z"
+    }
+  ])
+  comment_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440030",
+      authorId: "550e8400-e29b-41d4-a716-446655440001",
+      postId: "550e8400-e29b-41d4-a716-446655440020",
+      text: "Buddy looks so happy! Such a great photo.",
+      createdAt: "2023-03-01T15:30:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440031",
+      authorId: "550e8400-e29b-41d4-a716-446655440000",
+      postId: "550e8400-e29b-41d4-a716-446655440022",
+      text: "Max is such a handsome boy! Keep up the great work.",
+      createdAt: "2023-03-03T09:00:00Z"
+    }
+  ])
+  like_insertMany(data: [
+    {
+      userId: "550e8400-e29b-41d4-a716-446655440001",
+      postId: "550e8400-e29b-41d4-a716-446655440020",
+      createdAt: "2023-03-01T16:00:00Z"
+    },
+    {
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      postId: "550e8400-e29b-41d4-a716-446655440022",
+      createdAt: "2023-03-03T09:15:00Z"
+    }
+  ])
+  event_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440040",
+      creatorId: "550e8400-e29b-41d4-a716-446655440000",
+      title: "Local Dog Park Meetup",
+      description: "A fun meetup for dogs and their owners at the local dog park.",
+      dateTime: "2023-04-01T14:00:00Z",
+      location: "Community Dog Park",
+      isPublic: true,
+      rsvpCount: 5,
+      imageUrl: "https://example.com/dog_meetup.jpg",
+      createdAt: "2023-03-10T10:00:00Z"
+    }
+  ])
+}
