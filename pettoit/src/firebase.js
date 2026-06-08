@@ -4,7 +4,7 @@ import { getStorage } from "firebase/storage";   // For the profile pic
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCt7-LGnhiN6no5w8CAizSJ_TtGrGAXbcM",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "pettoit.com",
   projectId: "pettoit-1d815",
   storageBucket: "pettoit-1d815.firebasestorage.app",
