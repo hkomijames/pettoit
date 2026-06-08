@@ -1,15 +1,13 @@
-import { BrowserRouter, Routes, Route } from 'react-router'; // Removed Navigate (unused)
+import { BrowserRouter, Routes, Route } from 'react-router';
 import './App.css';
 import { useEffect, useState, lazy, Suspense } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "./firebase";
 
-// Components that load immediately (Global UI)
 import Navbar from './Navbar';
 import PetLoader from './PetLoader';
 
-// LAZY IMPORTS: These only download when the user visits the specific URL
 const Homepage = lazy(() => import('./Home'));
 const LoginBtn = lazy(() => import('./Login'));
 const RegistrationForm = lazy(() => import('./Registerform'));
@@ -52,10 +50,6 @@ function App() {
     <BrowserRouter>
       <Navbar user={user} username={username} />
       
-      {/* 
-        Wrap all Routes in one Suspense. 
-        Vite will now only fetch the JS for the specific page being viewed.
-      */}
       <Suspense fallback={<PetLoader />}>
         <Routes>
           <Route path="/" element={<Homepage />} />

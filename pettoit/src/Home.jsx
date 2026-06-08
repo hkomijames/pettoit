@@ -46,12 +46,10 @@ function Homepage() {
         }
     };
 
-    // Initial fetch
     useEffect(() => {
         fetchPosts(true);
     }, []);
 
-    // Fetch more when user scrolls to the bottom
     useEffect(() => {
         if (inView && hasMore && !loading) {
             fetchPosts();

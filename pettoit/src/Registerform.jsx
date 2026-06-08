@@ -76,7 +76,6 @@ if (passwordStrength(password) !== 'Strong password!') {
             // Send the standard Firebase verification email
             await sendEmailVerification(userCredential.user);
 
-            // 2. Save Text Data + Image URL to Cloud Firestore
             await setDoc(doc(db, "pets", userCredential.user.uid), { 
                 username: cleanUsername,
                 email: cleanEmail, 
@@ -84,7 +83,6 @@ if (passwordStrength(password) !== 'Strong password!') {
                 createdAt: new Date()
             });
 
-            // Optional: Clear form
             setUsername(""); setPassword(""); setEmail("");
             e.target.reset();
             navigate(`/profile/${cleanUsername}`);

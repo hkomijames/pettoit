@@ -7,13 +7,13 @@ import PetLoader from "./PetLoader";
 import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
 import Comment from "./Comment";
-import { Share2 } from "lucide-react"; // Optional icon
+import { Share2 } from "lucide-react";
 import PageNotFound from "./404page"
 
 function PostDetail() {
     const { postId } = useParams();
     const [loading, setLoading] = useState(true);
-    const [postData, setPostData] = useState(null); // Store post data for video check
+    const [postData, setPostData] = useState(null);
     const [comments, setComments] = useState([]);
 
     useEffect(() => {
@@ -79,12 +79,10 @@ function PostDetail() {
                     </div>
                 )}
 
-                {/* Main Input: ONLY for new top-level comments */}
                 <div className="w-full lg:w-2/3 flex justify-center mb-2">
                     <Comment postId={postId} parentId={null} />
                 </div>
 
-                {/* Comment List */}
                 <div className="w-full lg:w-2/3 bg-white rounded-lg shadow-md p-4">
                     {comments
                         .filter(c => !c.parentId)

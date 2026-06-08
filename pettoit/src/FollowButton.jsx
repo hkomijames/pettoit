@@ -41,7 +41,7 @@ const FollowButton = ({
     const followersRef = doc(db, "pets", targetUid, "followers", myUid);
 
     try {
-        // 1. Save to YOUR "following" list (uses the profile data you are visiting)
+        
         batch.set(followingRef, { 
             followedAt: serverTimestamp(),
             uid: targetUid,
@@ -49,8 +49,6 @@ const FollowButton = ({
             profilePic: targetProfilePic || ""
         });
 
-        // 2. Save to THEIR "followers" list (uses YOUR profile data)
-        // This is what the Followers.jsx component reads!
         batch.set(followersRef, { 
             followedAt: serverTimestamp(),
             uid: myUid,
@@ -58,7 +56,6 @@ const FollowButton = ({
             profilePic: myProfilePic || ""
         });
       
-        // 3. Notification
         const notifRef = doc(db, "pets", targetUid, "notifications", `${myUid}_follow`);
         batch.set(notifRef, {
             type: 'follow',
@@ -75,7 +72,6 @@ const FollowButton = ({
     }
   };
 
-  // Conditional returns MUST come after hooks
   if (loading) return null;
   if (!myUid || myUid === targetUid || isFollowing) return null;
 

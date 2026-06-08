@@ -15,7 +15,6 @@ import FollowerItem from "./Followers";
 
 function Profilecard() {
     const { username } = useParams();
-    // 1. Add state to toggle the form visibility
     const [isEditing, setIsEditing] = useState(false);
     const [cooldown, setCooldown] = useState(0);
     const navigate = useNavigate();
@@ -46,7 +45,6 @@ function Profilecard() {
 useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user) {
-            // Just set the initial state once
             setIsVerified(user.emailVerified);
         }
     });
@@ -56,7 +54,6 @@ useEffect(() => {
     useEffect(() => {
     async function fetchProfileAndPosts() {
         try {
-            // 1️⃣ Find profile by username (public)
             const userQuery = query(
                 collection(db, "pets"),
                 where("username", "==", username)
@@ -76,7 +73,6 @@ useEffect(() => {
 
                 setProfileUid(uid);
 
-                // 2️⃣ Set profile state
                 setProfilePic(data.profilePic || "");
                 setCoverPhoto(data.coverPhoto || "");
                 setPetName(data.petName || "");
@@ -87,7 +83,6 @@ useEffect(() => {
                 setBio(data.bio || "");
                 setEditableUsername(data.username || "");
 
-                // 3️⃣ Fetch posts for THIS profile (public)
                 const postsQuery = query(
                     collection(db, "posts"),
                     where("author", "==", uid),
@@ -115,7 +110,6 @@ useEffect(() => {
 
 }, [username]);
 
-    // This function now just returns the JSX for the form
     function renderEditForm() {
         return (
             <div className="relative w-full">
@@ -150,7 +144,6 @@ useEffect(() => {
             return;
         }
 
-        // 1. Username Uniqueness Logic
         const cleanedUsername = editableUsername.toLowerCase().replace(/[^a-z0-9]/g, "");
         
         if (cleanedUsername !== username) {
@@ -166,13 +159,12 @@ useEffect(() => {
             }
         }
 
-        // 2. Validate and Upload Images
+        // Validate and Upload Images
         let profilePicURL = profilePic;
         let coverPhotoURL = coverPhoto;
 
-        // Profile Picture Check
         if (profilePic && typeof profilePic !== "string") {
-            // SECURITY CHECK: Ensure it's a valid image and not a huge file
+
             validateMediaFile(profilePic); 
             
             const storageRef = ref(storage, `profilePics/${currentUser.uid}/pic`);
@@ -182,7 +174,7 @@ useEffect(() => {
 
         // Cover Photo Check
         if (coverPhoto && typeof coverPhoto !== "string") {
-            // SECURITY CHECK
+            
             validateMediaFile(coverPhoto);
             
             const storageRef = ref(storage, `coverPhotos/${currentUser.uid}/cover`);
@@ -190,7 +182,6 @@ useEffect(() => {
             coverPhotoURL = await getDownloadURL(storageRef);
         }
 
-        // 3. Save to Firestore
         const userDocRef = doc(db, "pets", currentUser.uid);
         await setDoc(userDocRef, {
             username: cleanedUsername,
@@ -201,10 +192,9 @@ useEffect(() => {
             petName,
             age,
             location,
-            bio: bio.trim() // Basic cleaning for bio
+            bio: bio.trim()
         }, { merge: true });
 
-        // 4. Update UI
         setProfilePic(profilePicURL);
         setCoverPhoto(coverPhotoURL);
         setIsEditing(false);
@@ -220,7 +210,7 @@ useEffect(() => {
 }
 
 function ProfileTabs({ profileUid, myUid, myUsername, myProfilePic }) {
-    // 1. Define which tab is active (defaulting to 'posts')
+
     const [activeTab, setActiveTab] = useState('posts');
     const [followersList, setFollowersList] = useState([]);
 
@@ -268,10 +258,8 @@ function ProfileTabs({ profileUid, myUid, myUsername, myProfilePic }) {
                 >Followers</button>
             </div>
 
-            {/* 2. Panels visibility is controlled by the state */}
             <div id="posts-panel" role="tabpanel" aria-labelledby="posts-tab" hidden={activeTab !== 'posts'}>
 
-               {/* Only show CreatePost if the visitor is the owner of this profile */}
     {auth.currentUser?.uid === profileUid && <CreatePost />}
     
     {userPosts && userPosts.length > 0 ? (
@@ -302,7 +290,6 @@ function ProfileTabs({ profileUid, myUid, myUsername, myProfilePic }) {
                             <FollowerItem 
                                 key={follower.uid} 
                                 follower={follower}
-                                // Pass your info so the button in FollowerItem works
                                 myUid={myUid}
                                 myUsername={myUsername}
                                 myProfilePic={myProfilePic}
@@ -352,7 +339,6 @@ const CoverPhoto = ({ coverPhoto, cover }) => {
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
     
-    // Constrain between 0 and 100%
     setPosition({
       x: Math.max(0, Math.min(100, x)),
       y: Math.max(0, Math.min(100, y)),
@@ -370,7 +356,7 @@ const CoverPhoto = ({ coverPhoto, cover }) => {
       <img 
         src={coverPhoto instanceof File ? URL.createObjectURL(coverPhoto) : coverPhoto || cover} 
         alt="cover photo" 
-        draggable={false} // Disable native drag to allow custom positioning
+        draggable={false}
         className="object-cover w-full h-full rounded-lg select-none" 
         style={{ objectPosition: `${position.x}% ${position.y}%` }}
       />
@@ -379,11 +365,11 @@ const CoverPhoto = ({ coverPhoto, cover }) => {
 };
 
 const handleResendEmail = async () => {
-    if (cooldown > 0) return; // Guard against rapid clicks
+    if (cooldown > 0) return;
 
     try {
         await sendEmailVerification(auth.currentUser);
-        setCooldown(60); // Start 60-second cooldown
+        setCooldown(60);
         alert("Verification email resent! Please check your inbox or spam folder.");
     } catch (error) {
         if (error.code === 'auth/too-many-requests') {
@@ -405,7 +391,6 @@ const showVerificationPrompt = isProfileOwner && !isVerified;
             
             <h2 className="text-xl font-bold absolute bottom-10 left-6">{username}'s Profile Page 🐾</h2>
 
-{/* Only show this block if the user is logged in to THEIR profile and NOT verified */}
 {showVerificationPrompt && (
     <div className="absolute top-50 right-35 z-50 text-center text-green-500 font-bold bg-green-100 p-3 rounded w-1/2 mx-auto my-2 flex flex-col items-center gap-3">
         <p>
@@ -427,8 +412,6 @@ const showVerificationPrompt = isProfileOwner && !isVerified;
     </div>
 )}
 
-            
-            {/* 2. Toggle state on click */}
             {auth.currentUser?.uid === profileUid && !isEditing && (
                 <button 
                     className="cursor-pointer border px-6 py-2 rounded-4xl bg-[#00573F] hover:bg-[#002614] text-white font-semibold mt-2 absolute bottom-10/12 right-6 transition-all" 

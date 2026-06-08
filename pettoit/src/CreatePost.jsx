@@ -34,24 +34,22 @@ function CreatePost() {
         timestamp: serverTimestamp(),
       };
 
-      // 1. VALIDATE & UPLOAD IMAGES
       if (images.length > 0) {
         const uploadPromises = images.map(async (file) => {
           // --- SECURITY CHECK ---
           const { safeFileName } = validateMediaFile(file); 
           
           const options = {
-  maxSizeMB: 0.2, // Aim for ~200KB
+  maxSizeMB: 0.2,
   maxWidthOrHeight: 1200,
   useWebWorker: true,
   fileType: 'image/webp',
   initialQuality: 0.75 
 };
 
-          // Compress
+          
           const webpBlob = await imageCompression(file, options);
           
-          // Use the safe name from your utility (ensuring .webp extension)
           const finalName = safeFileName.split('.')[0] + '.webp';
           const imageRef = ref(storage, `posts/${auth.currentUser.uid}/images/${finalName}`);
 
@@ -68,7 +66,6 @@ const metadata = {
         postData.imageURLs = urls;
       }
 
-      // 2. VALIDATE & UPLOAD VIDEO
       if (video) {
         // --- SECURITY CHECK ---
         const { safeFileName } = validateMediaFile(video);
@@ -78,10 +75,8 @@ const metadata = {
         postData.videoURL = await getDownloadURL(videoRef);
       }
 
-      // 3. SAVE TO FIRESTORE
       await addDoc(collection(db, "posts"), postData);
       
-      // 4. RESET UI
       setIsSuccess(true);
       setContent('');
       setImages([]);
@@ -90,7 +85,7 @@ const metadata = {
       if (videoInputRef.current) videoInputRef.current.value = "";
       
     } catch (error) {
-      // This will now catch "File too large" or "Invalid type" from your utility
+
       console.error("Post creation error:", error);
       alert(error.message); 
     } finally {
@@ -100,9 +95,8 @@ const metadata = {
 
   useEffect(() => {
     
-    // Auto-hide success message after 3 seconds
     if (isSuccess) {
-      successMessageRef.current.style.opacity = 1; // Show message
+      successMessageRef.current.style.opacity = 1;
       const timer = setTimeout(() => {
         successMessageRef.current.style.opacity = 0;
       }, 3000);
@@ -128,7 +122,6 @@ const metadata = {
   </div>
         )}
         
-        {/* Hidden File Inputs */}
         <input 
           type="file" 
           accept="image/*"

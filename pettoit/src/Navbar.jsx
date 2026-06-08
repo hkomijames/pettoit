@@ -3,7 +3,7 @@ import { Menu, X, Home, User } from 'lucide-react';
 import { useState } from 'react';
 import Notification from "./Notification";
 
-function Navbar({ user, username }) { // Receive the username prop
+function Navbar({ user, username }) { 
     const [open, setOpen] = useState(false);
 
     return (
@@ -18,10 +18,8 @@ function Navbar({ user, username }) { // Receive the username prop
                     {open ? <X size={24} /> : <Menu size={24} />}
                 </button>
 
-                {/* centered title */}
                 <Link to="/"><h1 className="flex-1 text-left text-3xl font-bold">Petto<span className="bg-white text-(--sea-green) px-2 ml-1 rounded">it</span></h1></Link>
 
-                {/* regular links on md+ */}
                 <ul className="hidden md:flex gap-4 items-center">
                     <li><Link to="/">
                     <div className='flex flex-col items-center hover:text-gray-300 transition-colors'>
@@ -42,7 +40,7 @@ function Navbar({ user, username }) { // Receive the username prop
                             <li>
                                 <Notification myUid={user?.uid}/>
                                 </li>
-                            {/* Display the pet's username here */}
+                            
                             <li className="text-sm font-bold text-blue-400">
                                 🐾 {username || "Pet Friend"}
                             </li>

@@ -17,32 +17,29 @@ function DeletePost({ postId, authorId, imageURLs, videoURL, imageURL }) {
         
         setLoading(true);
         try {
-            // 1. Storage Deletion
+        
             const deletePromises = [];
             if (imageURLs?.length > 0) imageURLs.forEach(url => deletePromises.push(deleteObject(ref(storage, url))));
             if (imageURL) deletePromises.push(deleteObject(ref(storage, imageURL)));
             if (videoURL) deletePromises.push(deleteObject(ref(storage, videoURL)));
             await Promise.all(deletePromises.map(p => p.catch(() => {})));
 
-            // 2. Prepare Batch
             const batch = writeBatch(db);
 
             // Fetch Comments & Paws
             const commentsSnap = await getDocs(query(collection(db, "comments"), where("postId", "==", postId)));
             const pawsSnap = await getDocs(query(collection(db, "paws"), where("postId", "==", postId)));
 
-            // 3. Add deletions to batch
             batch.delete(doc(db, "posts", postId));
             commentsSnap.forEach((d) => batch.delete(d.ref));
             pawsSnap.forEach((d) => batch.delete(d.ref));
 
             await batch.commit();
 
-            // 4. Show success toast and reload
             setShowToast(true);
             setTimeout(() => {
                 window.location.reload();
-            }, 2000); // Give user 2 seconds to see the message
+            }, 2000);
             
         } catch (error) {
             console.error("Delete error:", error);

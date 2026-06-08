@@ -7,14 +7,12 @@ import GoogleLogo from "./assets/Google-Logo.jpg";
 function SignInWithGoogle() {
     const navigate = useNavigate();
 
-    // Helper to create a clean, unique username
     const generateUniqueUsername = async (baseName) => {
-        // 1. Clean the name: lowercase, remove spaces/special chars
+
         const slug = baseName.toLowerCase().replace(/[^a-z0-9]/g, "");
         let username = slug;
         let exists = true;
         
-        // 2. Loop until a unique one is found
         while (exists) {
             const q = query(collection(db, "pets"), where("username", "==", username));
             const querySnapshot = await getDocs(q);
@@ -22,7 +20,6 @@ function SignInWithGoogle() {
             if (querySnapshot.empty) {
                 exists = false;
             } else {
-                // If exists, append 4 random digits and try again
                 username = `${slug}${Math.floor(1000 + Math.random() * 9000)}`;
             }
         }
@@ -40,23 +37,20 @@ function SignInWithGoogle() {
             let finalUsername;
 
             if (!userDocSnap.exists()) {
-                // Generate a unique username only for new users
                 finalUsername = await generateUniqueUsername(user.displayName || "user");
 
                 await setDoc(userDocRef, {
                     uid: user.uid,
                     displayName: user.displayName,
-                    username: finalUsername, // Store the unique username
+                    username: finalUsername,
                     email: user.email,
                     photoURL: user.photoURL,
                     createdAt: new Date(),
                 });
             } else {
-                // Use existing username if user already exists
                 finalUsername = userDocSnap.data().username;
             }
 
-            // Navigate using the unique username
             console.log("Navigating to:", `/profile/${finalUsername}`);
             navigate(`/profile/${finalUsername}`);
         } catch (error) {

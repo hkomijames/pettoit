@@ -3,7 +3,7 @@ import FollowButton from './FollowButton';
 import defaultAvatar from './assets/dog-paw-print.png';
 
 const FollowerItem = ({ follower, myUid, myUsername, myProfilePic }) => {
-  // These come from the follower's document in Firestore
+  
   const { username, profilePic, uid } = follower;
 
   return (
@@ -30,7 +30,6 @@ const FollowerItem = ({ follower, myUid, myUsername, myProfilePic }) => {
         </div>
       </div>
 
-      {/* Follow Button - Pass both the Follower's info and YOUR info */}
       <FollowButton 
         myUid={myUid}
         myUsername={myUsername}

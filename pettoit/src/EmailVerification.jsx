@@ -23,13 +23,12 @@ function VerifyEmail() {
                 .then(async () => {
                     setStatus("✅ Success! Your email is verified.");
 
-                    // Get the current user right after verification
                     const user = auth.currentUser;
 
                     if (user) {
                         await user.reload();
                         await user.getIdToken(true);
-                        // Fetch their specific profile from your "pets" collection
+                    
                         const userDoc = await getDoc(doc(db, "pets", user.uid));
                         
                         const username = userDoc.exists() ? userDoc.data().username : null;
@@ -38,13 +37,10 @@ function VerifyEmail() {
                             if (username) {
                                 navigate(`/profile/${username}`);
                             } else {
-                                // If they are logged in but have no username yet, 
-                                // it's safer to send them to login or home
                                 navigate("/login"); 
                             }
                         }, 3000);
                     } else {
-                        // Not logged in in this browser session
                         setTimeout(() => navigate("/login"), 3000);
                     }
                 })

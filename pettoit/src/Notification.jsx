@@ -29,10 +29,8 @@ const Notification = ({ myUid }) => {
   if (!myUid || !notifId) return;
 
   try {
-    // Reference to the specific notification document
     const notifRef = doc(db, "pets", myUid, "notifications", notifId);
     
-    // Update only the 'read' field
     await updateDoc(notifRef, {
       read: true
     });
@@ -43,12 +41,12 @@ const Notification = ({ myUid }) => {
 
   return (
     <div className="notification-container" style={{ position: 'relative' }}>
-      {/* 1. Using a <button> for accessibility and keyboard support */}
+      
       <button 
         className="notif-icon" 
         onClick={() => setShowDropdown(!showDropdown)}
-        aria-label={`Notifications, ${unreadCount} unread items`} // Tells screen readers the count
-        aria-expanded={showDropdown} // Tells if menu is open
+        aria-label={`Notifications, ${unreadCount} unread items`}
+        aria-expanded={showDropdown}
         aria-haspopup="true"
         style={{ 
           cursor: 'pointer', 
@@ -58,7 +56,7 @@ const Notification = ({ myUid }) => {
           padding: '5px'
         }}
       >
-        {/* 2. aria-hidden prevents the emoji from being read out literally */}
+    
         <span role="img" aria-hidden="true" style={{ fontSize: '24px' }}>🔔</span>
         
         {unreadCount > 0 && (
@@ -80,7 +78,7 @@ const Notification = ({ myUid }) => {
       {showDropdown && (
         <div 
           className="notif-dropdown" 
-          role="menu" // Defines this as a menu for accessibility
+          role="menu"
           aria-label="Notifications list"
           style={{
             position: 'absolute',
@@ -101,7 +99,6 @@ const Notification = ({ myUid }) => {
               <div 
                 key={n.id} 
                 role="menuitem"
-                // Announces the notification content and status to screen readers
                 aria-label={`${n.fromName} followed you. ${n.read ? '' : 'Unread'}`}
                 style={{ 
                   padding: '10px', 

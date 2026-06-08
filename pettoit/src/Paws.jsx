@@ -8,13 +8,11 @@ function Paws({ postId }) {
   const [liked, setLiked] = useState(false);
   const [localCount, setLocalCount] = useState(0);
 
-  // 1. Real-time Sync with Firestore
   useEffect(() => {
     if (!postId) return;
 
     const postRef = doc(db, "posts", postId);
     
-    // Listen to the specific post for changes in pawCount and pawavers
     const unsubscribe = onSnapshot(postRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -35,20 +33,16 @@ function Paws({ postId }) {
     const postRef = doc(db, "posts", postId);
     const willBeLiked = !liked;
 
-    // 2. Optimistic Update (UI feels instant)
     setLiked(willBeLiked);
     setLocalCount(prev => willBeLiked ? prev + 1 : prev - 1);
 
     try {
       await updateDoc(postRef, {
-        // arrayUnion and arrayRemove automatically handle uniqueness!
-        // Even if called twice, a UID can only exist ONCE in an array.
         pawCount: increment(willBeLiked ? 1 : -1),
         pawavers: willBeLiked ? arrayUnion(userId) : arrayRemove(userId)
       });
     } catch (error) {
       console.error("Error updating paw:", error);
-      // Revert on error
       setLiked(!willBeLiked);
       setLocalCount(prev => !willBeLiked ? prev + 1 : prev - 1);
     }

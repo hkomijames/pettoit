@@ -16,7 +16,7 @@ function EditComment({ commentId, authorId, currentText, onSave, onCancel }) {
 
     const handleEdit = async (e) => {
       e.preventDefault();
-      // Don't save if empty or unchanged
+      
       if (!text.trim() || text === currentText) {
           onCancel(); 
           return;
@@ -24,7 +24,7 @@ function EditComment({ commentId, authorId, currentText, onSave, onCancel }) {
 
       setLoading(true);
       try {
-          // Matches your 'content' field in Firestore
+          
           await updateDoc(doc(db, "comments", commentId), { content: text });
           if (onSave) onSave();
       } catch (error) {

@@ -86,7 +86,6 @@ export const serveApp = onRequest({ cors: true, region: "us-central1" }, async (
       }
     }
     
-    // 2. Post Route (Handles Images & Videos)
     if (pathParts[0] === "post" && pathParts[1]) {
       const postId = pathParts[1];
       const postSnap = await admin.firestore().collection("posts").doc(postId).get();

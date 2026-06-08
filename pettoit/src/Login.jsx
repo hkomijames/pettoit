@@ -11,10 +11,8 @@ function LoginBtn() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isChecked, setIsChecked] = useState(false);
-    // Set to true initially to check auth state before showing the form
     const [loading, setLoading] = useState(true);
 
-    // --- REDIRECT IF ALREADY LOGGED IN ---
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -30,7 +28,6 @@ function LoginBtn() {
                     setLoading(false);
                 }
             } else {
-                // No user found, allow them to see the login form
                 setLoading(false);
             }
         });
@@ -42,17 +39,14 @@ function LoginBtn() {
         try {
             setLoading(true);
             
-            // 1. Sign in the user
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // 2. Fetch the pet's data from Firestore using their UID
             const petDocRef = doc(db, "pets", user.uid);
             const petDocSnap = await getDoc(petDocRef);
 
             if (petDocSnap.exists()) {
                 const petData = petDocSnap.data();
-                // 3. Navigate using the ACTUAL username from the database
                 navigate(`/profile/${petData.username}`);
             } else {
                 navigate("/profile/new-pet");
@@ -65,7 +59,6 @@ function LoginBtn() {
         }
     };
 
-    // Prevent form flicker while checking session
     if (loading && !email) {
         return <div className="text-center mt-10 text-white">Loading...</div>;
     }
