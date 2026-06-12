@@ -9,6 +9,9 @@ import RightSidebar from "./RightSidebar";
 import Comment from "./Comment";
 import { Share2 } from "lucide-react";
 import PageNotFound from "./404page"
+import AmazonProducts from "./UnderPostAddProducts";
+import ShareButtons from "./ShareButtons";
+import defaultPostImage from "./assets/defaultPostImage.jpg";
 
 function PostDetail() {
     const { postId } = useParams();
@@ -49,36 +52,22 @@ function PostDetail() {
         return () => unsubscribe();
     }, [postId]);
 
-    const handleCopyEmbed = () => {
-        const embedCode = `<iframe width="560" height="315" src="https://pettoit.com/embed/${postId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-        navigator.clipboard.writeText(embedCode);
-        alert("Embed code copied to clipboard!");
-    };
-
     if (loading) return <PetLoader />;
     if (!postData) return <PageNotFound />;
 
     return (
-        <div className="flex mt-10 gap-4 justify-center relative">
+        <div className="flex mt-10 lg:w-[80%] gap-4 justify-center items-start mx-auto relative">
             <LeftSidebar />
             <div className="lg:w-1/2 md:w-5/5 flex flex-col items-center h-auto">
                 <PostCard postId={postId} />
 
-                {/* EMBED SECTION: Only show if post has a video */}
-                {postData.videoURL && (
-                    <div className="w-full lg:w-2/3 bg-gray-100 p-3 rounded-lg mb-4 flex items-center justify-between border border-gray-300">
-                        <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                            <Share2 size={16} /> Share this video
-                        </span>
-                        <button 
-                            onClick={handleCopyEmbed}
-                            className="bg-(--gotham-green) text-white px-3 py-1 rounded-md text-xs hover:opacity-80 transition-all"
-                        >
-                            Copy Embed Code
-                        </button>
-                    </div>
-                )}
-
+                {/* SHARE BUTTONS */}
+                <ShareButtons 
+  url={`https://pettoit.com/post/${postId}`}
+  title={postData?.title || "Check this out!"} 
+  imageUrl={postData?.imageURL || postData?.imageURLs?.[0] || defaultPostImage} 
+/>
+            <h2 className="mt-4 text-white font-bold text-xl">Comment</h2>
                 <div className="w-full lg:w-2/3 flex justify-center mb-2">
                     <Comment postId={postId} parentId={null} />
                 </div>
@@ -105,6 +94,9 @@ function PostDetail() {
                             </div>
                         ))}
                 </div>
+                
+                <AmazonProducts />
+
             </div>
             <RightSidebar />
         </div>

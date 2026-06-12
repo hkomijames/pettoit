@@ -414,7 +414,7 @@ const showVerificationPrompt = isProfileOwner && !isVerified;
 
             {auth.currentUser?.uid === profileUid && !isEditing && (
                 <button 
-                    className="cursor-pointer border px-6 py-2 rounded-4xl bg-[#00573F] hover:bg-[#002614] text-white font-semibold mt-2 absolute bottom-10/12 right-6 transition-all" 
+                    className="cursor-pointer border px-6 py-2 rounded-4xl bg-[#ffaa01] hover:bg-[#002614] text-white font-semibold mt-2 absolute bottom-10/12 right-6 transition-all" 
                     onClick={() => setIsEditing(true)}
                 >
                     Edit Profile

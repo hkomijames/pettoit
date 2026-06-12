@@ -56,8 +56,8 @@ function Paws({ postId }) {
     >
       <svg viewBox="0 0 100 100" className="w-10 h-10 drop-shadow-lg drop-shadow-green-700">
         <g 
-          stroke={liked ? "var(--sea-green)" : "var(--brunswick-green)"} 
-          fill={liked ? "var(--gotham-green)" : "white"} 
+          stroke={liked ? "#ffaa01" : "#ffaa01"} 
+          fill={liked ? "#ffaa01" : "white"} 
           strokeWidth="4"
           className="transition-colors duration-500"
         >

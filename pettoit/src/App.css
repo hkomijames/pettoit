@@ -70,7 +70,7 @@ body {
 }
 
 .register-login-btn {
-  background-color: var(--sea-green);
+  background-color: hsl(40, 97%, 46%);
   color: white;
   border: none;
   transition: background-color 0.3s ease;
@@ -120,4 +120,22 @@ textarea {
   padding: 0 10px;
   border-radius: 50px;
   font-weight: bold
+}
+
+
+@media (min-width: 1024px) {
+  .feed-layout {
+    width: 80%;
+    margin: 0 auto;
+  }
+  .menu1 {
+    width: 80%;
+    margin: 0 auto;
+  }
+  .right-sidebar {
+    width: 300px;
+  }
+  .left-sidebar {
+    width: 300px;
+  }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router"
 import { db } from "./firebase";
 import { getAuth } from "firebase/auth";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
@@ -9,6 +10,8 @@ import { Link } from "react-router";
 import Paws from "./Paws";
 import DeletePost from "./DeletePost";
 import FollowButton from "./FollowButton";
+import ShareButtons from "./ShareButtons";
+import defaultPostImage from "./assets/defaultPostImage.jpg";
 
 /* ----------------------------- Time Formatter ----------------------------- */
 
@@ -43,11 +46,17 @@ function PostCard({ postId, priority = false }) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isShareBtnHidden, setIsShareBtnHidden] = useState(false);
 
   const scrollRef = useRef(null);
   const actionMenuRef = useRef(null);
   const auth = getAuth();
   const currentUser = auth.currentUser;
+  const location = useLocation();
+  const path = location.pathname;
+  const shouldShowButton = path === "/" || path.startsWith("/profile/")
 
   /* ------------------------------ Fetch Data ------------------------------ */
 
@@ -128,8 +137,28 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
     setCurrentIndex(index);
   };
 
+  {/*video play/pause on click*/}
+  const handlePlayPause = (e) => {
+    if (e) e.stopPropagation(); 
+    
+    if (!videoRef.current) return;
+
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  {/* ----------------------------- Share Menu ----------------------------- */}
+  const toggleShareMenu = () => {
+    setIsShareBtnHidden(!isShareBtnHidden);
+  };
+
   return (
-    <div className="lg:w-2/3 md:w-full w-full bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden mb-6 h-fit relative">
+    <div className="w-full bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden mb-6 h-fit relative">
       {/* ------------------------------- Header ------------------------------- */}
 
       <div className="p-4 flex items-center gap-3">
@@ -278,13 +307,31 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
         )}
 
         {postData.videoURL && (
+          <div className="relative">
           <video
-            src={postData.videoURL}
-            preload={priority ? "metadata" : "none"}
+          ref={videoRef}
+            src={`${postData.videoURL}#t=0.001`}
+            preload="metadata"
+            controlsList="nodownload"
+            onContextMenu={(e) => e.preventDefault()}
             controls
-            className="w-full rounded-2xl bg-black max-h-96 mt-2"
+            className="w-full object-contain select-none rounded-2xl max-h-96 mt-2"
           />
+          {!isPlaying && (
+      <button
+        aria-label="Play video"
+        onClick={handlePlayPause}
+        className="absolute inset-0 bottom-0 m-auto flex items-center justify-center w-16 h-16 bg-red-600 hover:bg-blue-700 cursor-pointer text-white rounded-full shadow-lg transition-transform transform hover:scale-110"
+      >
+        {/* Custom Play Icon (SVG) */}
+        <svg xmlns="http://w3.org" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 ml-1">
+          <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+        </svg>
+      </button>
+    )}
+          </div>
         )}
+        
       </div>
 
       {/* ------------------------------- Actions ------------------------------- */}
@@ -303,10 +350,30 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
             </Link>
           </div>
 
-          <Share2 size={18} className="hover:text-amber-500 cursor-pointer" />
+          {shouldShowButton && (
+<button 
+          onClick={toggleShareMenu}
+          aria-haspopup="true"
+          aria-expanded={isShareBtnHidden}
+          type="button"
+          className="bg-[#ffaa01] text-white w-[5rem] h-[2.5rem] rounded font-bold cursor-pointer">
+            Share
+          </button>
+          )}
+  
         </div>
       </div>
 
+        {isShareBtnHidden && (
+<div className="">
+  <ShareButtons 
+      url={`https://pettoit.com/post/${postId}`}
+      title={postData?.title || "Check this out!"} 
+      imageUrl={postData?.imageURL || postData?.imageURLs?.[0] || defaultPostImage}
+      />
+</div>
+        )}
+      
       {/* ------------------------------ Lightbox ------------------------------ */}
 
       {isLightboxOpen && (
@@ -400,8 +467,10 @@ const Lightbox = ({ images, startIndex, onClose }) => {
       
       {/* Close Button */}
       <button
+      type="button"
+        aria-label="Close"
         onClick={onClose}
-        className="absolute top-6 right-6 z-50 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white"
+        className="absolute top-6 right-6 z-50 p-2 bg-red-300 hover:bg-red-400 cursor-pointer rounded-full text-white"
       >
         <X size={28} />
       </button>
@@ -409,8 +478,10 @@ const Lightbox = ({ images, startIndex, onClose }) => {
       {/* Left Arrow */}
       {images.length > 1 && currentIndex > 0 && (
         <button
+        type="button"
+          aria-label="Previous image"
           onClick={handlePrev}
-          className="absolute left-6 z-50 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition"
+          className="absolute left-6 z-50 p-3 bg-[#ffaa01] hover:bg-(--sea-green) cursor-pointer rounded-full text-white transition"
         >
           <ChevronLeft size={32} />
         </button>
@@ -419,8 +490,10 @@ const Lightbox = ({ images, startIndex, onClose }) => {
       {/* Right Arrow */}
       {images.length > 1 && currentIndex < images.length - 1 && (
         <button
+        type="button"
+          aria-label="Next image"
           onClick={handleNext}
-          className="absolute right-6 z-50 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition"
+          className="absolute right-6 z-50 p-3 bg-[#ffaa01] hover:bg-(--sea-green) cursor-pointer rounded-full text-white transition"
         >
           <ChevronRight size={32} />
         </button>
@@ -434,7 +507,7 @@ const Lightbox = ({ images, startIndex, onClose }) => {
       >
         {images.map((url, index) => (
           <div
-            key={index}
+            key={`${url}-${index}`}
             className="flex-none w-full h-full flex items-center justify-center snap-center p-4"
           >
             <img

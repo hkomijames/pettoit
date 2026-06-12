@@ -1,7 +1,29 @@
+import AmazonAdds from "./AmazonAdds";
+import ProductsCatalog from "./AmazonProducts";
+import StickyBox from "react-sticky-box";
 
 function LeftSidebar() {
+    const randomProducts = ProductsCatalog();
+
     return (
-        <aside className="hidden lg:block w-1/5 h-96 lg:relative lg:left-30 bg-white rounded-2xl shadow-lg border-2 border-gray-200"><h2 className="text-center">Left Sidebar</h2></aside>
+        <StickyBox offsetTop={20}>
+            <aside className="hidden lg:block w-64 rounded-2xl shadow-lg left-sidebar">
+
+            <div className="grid grid-cols-1 gap-4">
+    {randomProducts.map(product => (
+        <AmazonAdds
+            key={product.id}
+            imageUrl={product.imageUrl}
+            linkUrl={product.linkUrl}
+            title={product.title}
+            description={product.description}
+            price={product.price}
+            shoplink={product.shoplink}
+        />
+    ))}
+</div>
+            </aside>
+        </StickyBox>
     )
 }
 

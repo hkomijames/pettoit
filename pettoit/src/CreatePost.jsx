@@ -105,7 +105,7 @@ const metadata = {
   }, [isSuccess]);
 
   return (
-    <div className='w-full md:w-full lg:w-2/3 relative max-w-2xl mx-auto p-4 bg-white rounded-xl shadow-md border border-gray-200 mb-6'>
+    <div className='w-full relative mx-auto p-4 bg-white rounded-xl shadow-md border border-gray-200 mb-6'>
       <form onSubmit={handleSubmit} className='flex flex-col gap-3'>
         <textarea
           value={content}
@@ -167,6 +167,8 @@ const metadata = {
         <div className='flex items-center justify-between pt-2 border-t border-gray-100'>
           <div className='flex gap-1'>
             <button
+              aria-label='Upload post image'
+              aria-haspopup='dialog'
               type="button"
               disabled={loading}
               onClick={() => imageInputRef.current.click()}
@@ -175,6 +177,8 @@ const metadata = {
               <Image size={22} color='green' />
             </button>
             <button
+              aria-label='Upload post video'
+              aria-haspopup='dialog'
               type="button"
               disabled={loading}
               onClick={() => videoInputRef.current.click()}
