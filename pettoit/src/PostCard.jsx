@@ -24,14 +24,21 @@ const formatRelativeTime = (timestamp) => {
 
   if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${days} day${days > 1 ? 's' : ''} ago`;
 
-  return postDate.toLocaleDateString();
+  // Calculate months
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months} month${months > 1 ? 's' : ''} ago`;
+
+  // Calculate years
+  const years = Math.floor(days / 365);
+  return `${years} year${years > 1 ? 's' : ''} ago`;
 };
+
 
 /* -------------------------------------------------------------------------- */
 /*                                  PostCard                                  */
@@ -56,7 +63,9 @@ function PostCard({ postId, priority = false }) {
   const currentUser = auth.currentUser;
   const location = useLocation();
   const path = location.pathname;
-  const shouldShowButton = path === "/" || path.startsWith("/profile/")
+  const shouldShowButton = path === "/" || path.startsWith("/profile/");
+  const isPostPage = location.pathname.startsWith("/post/");
+  const showFullContent = isPostPage || isExpanded;
 
   /* ------------------------------ Fetch Data ------------------------------ */
 
@@ -170,7 +179,7 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
 
   <div className="flex-1">
   <div className="flex items-center gap-2">
-    <h3 className="font-bold text-sm text-gray-900">
+    <h3 className="font-bold text-sm text-black">
       <Link to={`/profile/${authorProfile?.username}`}>
         @{displayName}
       </Link>
@@ -188,7 +197,7 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
     )}
   </div>
 
-    <p className="text-[10px] text-gray-400 uppercase tracking-widest">
+    <p className="text-[13px] text-black tracking-widest">
       {formatRelativeTime(postData.timestamp)}
     </p>
   </div>
@@ -225,44 +234,60 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
 
       {/* ------------------------------ Text Content ------------------------------ */}
 
-      <Link
-        to={`/post/${postId}`}
-        className="block hover:opacity-95 transition-opacity"
+      {isPostPage ? (
+  /* Just the content div without a link on the post page */
+  <div className="px-5 pb-3">
+    {postData.content && (
+      <p
+        id={`post-body-${postId}`}
+        className="text-black text-lg leading-relaxed whitespace-pre-wrap"
       >
-        <div className="px-5 pb-3">
-          {postData.content && (
-            <p
-              id={`post-body-${postId}`}
-              className="text-black text-lg leading-relaxed whitespace-pre-wrap"
-            >
-              {!isExpanded && postData.content.length > 70
-                ? `${postData.content.substring(0, 70)}...`
-                : postData.content}
+        {!showFullContent && postData.content.length > 70
+          ? `${postData.content.substring(0, 70)}...`
+          : postData.content}
+      </p>
+    )}
+  </div>
+) : (
+  /* Wrapped in a Link on other pages */
+  <Link
+    to={`/post/${postId}`}
+    className="block hover:opacity-95 transition-opacity"
+  >
+    <div className="px-5 pb-3">
+      {postData.content && (
+        <p
+          id={`post-body-${postId}`}
+          className="text-black text-lg leading-relaxed whitespace-pre-wrap"
+        >
+          {!showFullContent && postData.content.length > 70
+            ? `${postData.content.substring(0, 70)}...`
+            : postData.content}
 
-              {postData.content.length > 70 && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsExpanded(!isExpanded);
-                  }}
-                  aria-expanded={isExpanded}
-                  aria-controls={`post-body-${postId}`}
-                  aria-label={
-                    isExpanded ? "Show less content" : "Show more content"
-                  }
-                  className="ml-2 text-sm font-bold text-blue-600 hover:underline cursor-pointer"
-                >
-                  {isExpanded ? "Show Less" : "Show More"}
-                </button>
-              )}
-            </p>
+          {postData.content.length > 70 && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                setIsExpanded(!isExpanded);
+              }}
+              aria-expanded={isExpanded}
+              aria-controls={`post-body-${postId}`}
+              aria-label={isExpanded ? "Show less content" : "Show more content"}
+              className="ml-2 text-sm font-bold text-blue-600 hover:underline cursor-pointer"
+            >
+              {isExpanded ? "Show Less" : "Show More"}
+            </button>
           )}
-        </div>
-      </Link>
+        </p>
+      )}
+    </div>
+  </Link>
+)}
+
 
       {/* ------------------------------ Media Section ------------------------------ */}
 
-      <div className="px-2 pb-2 relative">
+      <div className="px-2 pb-2 relative overflow-hidden">
         {postData.imageURLs.length > 0 && (
           <>
             {postData.imageURLs.length > 1 && (
@@ -275,10 +300,17 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
               ref={scrollRef}
               onScroll={handleScroll}
               role="region"
-              className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-2xl"
+              className="flex overflow-x-auto h-full snap-x snap-mandatory no-scrollbar rounded-2xl"
             >
               {postData.imageURLs.map((url, index) => (
-                <div key={index} className="flex-none w-full snap-center">
+                <div key={`${url}-${index}`} className="flex-none h-full w-full snap-center">
+                  <img 
+      src={url}
+      aria-hidden="true"
+      className="absolute inset-0 z-0 w-full h-full object-contain blur-2xl scale-120 opacity-70 pointer-events-none"
+      alt=""
+    />
+                  
                   <img
                     src={url}
                     loading={(priority && index === 0) ? "eager" : "lazy"}
@@ -297,7 +329,7 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
                        setIsLightboxOpen(true);
                       }
                     }}
-                    className="w-full aspect-square object-cover border border-gray-100 cursor-zoom-in"
+                    className="w-full relative z-10 h-90 object-contain cursor-zoom-in"
                     alt={`Post visual content ${index + 1}`}
                   />
                 </div>
@@ -342,30 +374,30 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
             <div className="flex items-center gap-1.5 hover:text-red-500 transition-colors cursor-pointer">
               <Paws postId={postData.id} initialCount={postData.pawCount} />
             </div>
+          </div>
+          <div className="flex justify-center">
+      {shouldShowButton && (
+<button 
+          onClick={toggleShareMenu}
+          aria-haspopup="true"
+          aria-expanded={isShareBtnHidden}
+          type="button"
+          className="bg-[#ffaa01] text-white w-20 h-10 rounded font-bold cursor-pointer">
+            Share
+          </button>
+          )}
+</div>
 <Link to={`/post/${postId}`}>
             <div className="flex items-center gap-1.5 mt-3 hover:text-blue-500 transition-colors cursor-pointer">
               <MessageCircle size={20} color="var(--gotham-green)" />
               <span className="text-sm font-semibold text-(--sea-green)">{!commentCount ? "" : commentCount} Comment{commentCount !== 1 ? 's' : ''}</span>
             </div>
             </Link>
-          </div>
-
-          {shouldShowButton && (
-<button 
-          onClick={toggleShareMenu}
-          aria-haspopup="true"
-          aria-expanded={isShareBtnHidden}
-          type="button"
-          className="bg-[#ffaa01] text-white w-[5rem] h-[2.5rem] rounded font-bold cursor-pointer">
-            Share
-          </button>
-          )}
-  
         </div>
       </div>
 
         {isShareBtnHidden && (
-<div className="">
+<div className="flex items-center justify-center mb-2">
   <ShareButtons 
       url={`https://pettoit.com/post/${postId}`}
       title={postData?.title || "Check this out!"} 

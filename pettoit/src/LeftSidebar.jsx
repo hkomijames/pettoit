@@ -8,7 +8,6 @@ function LeftSidebar() {
     return (
         <StickyBox offsetTop={20}>
             <aside className="hidden lg:block w-64 rounded-2xl shadow-lg left-sidebar">
-
             <div className="grid grid-cols-1 gap-4">
     {randomProducts.map(product => (
         <AmazonAdds

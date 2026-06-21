@@ -157,15 +157,17 @@ function Comment({ postId, parentId = null, onCommentAdded, commentData }) {
       {(isReplying || !commentData) && (
         <form 
             onSubmit={handleSubmit} 
-            className="mt-2 w-full lg:w-3/4"
+            className="mt-2 w-full"
             aria-label={parentId || commentData?.id ? "Reply to comment" : "Post a new comment"}
         >
           <textarea
+            rows="3"
+            name="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={parentId || commentData?.id ? "Write a reply..." : "Write a comment..."}
             aria-required="true"
-            className="w-full p-2 border border-gray-200 bg-white rounded-xl text-sm focus:ring-2 focus:ring-green-400 outline-none"
+            className="w-full p-2 border border-gray-200 bg-white rounded-xl text-md focus:ring-2 focus:ring-green-400 outline-none"
           />
           <button 
             type="submit" 

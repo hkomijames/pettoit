@@ -68,11 +68,11 @@ function PostDetail() {
   imageUrl={postData?.imageURL || postData?.imageURLs?.[0] || defaultPostImage} 
 />
             <h2 className="mt-4 text-white font-bold text-xl">Comment</h2>
-                <div className="w-full lg:w-2/3 flex justify-center mb-2">
+                <div className="w-full lg:w-full flex justify-center mb-2">
                     <Comment postId={postId} parentId={null} />
                 </div>
 
-                <div className="w-full lg:w-2/3 bg-white rounded-lg shadow-md p-4">
+                <div className="w-full bg-white rounded-lg shadow-md p-4">
                     {comments
                         .filter(c => !c.parentId)
                         .map(parentComment => (

@@ -62,7 +62,7 @@ body {
   background-color: var(--sea-green);
   font-family: 'Poppins', sans-serif;
   scroll-behavior: smooth;
-  margin-bottom: 50px;
+  margin-bottom: 0px;
 }
 
 .nav {
@@ -120,6 +120,26 @@ textarea {
   padding: 0 10px;
   border-radius: 50px;
   font-weight: bold
+}
+
+.about-contact {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: white;
+  color: #080808;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  line-height: 1.6;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.footer {
+  background-color: var(--wheat);
+  color: black;
+  text-align: center;
+  padding: 20px;
+  width: 100%;
 }
 
 

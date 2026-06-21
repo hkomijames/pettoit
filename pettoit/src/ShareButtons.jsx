@@ -1,11 +1,15 @@
 import { FacebookShareButton, TwitterShareButton, LinkedinShareButton, RedditShareButton, PinterestShareButton, BlueskyShareButton, FacebookIcon, TwitterIcon, LinkedinIcon, RedditIcon, PinterestIcon, BlueskyIcon,} from 'react-share';
+import { useLocation } from "react-router"
 
 function ShareButtons({ url, title, imageUrl }) {
+    const location = useLocation();
     return (
         <div>
-            <button type="button" className="bg-[#ffaa01] hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded w-full cursor-pointer">
+            {location.pathname !== '/' && !location.pathname.startsWith("/profile/") && (
+                <button type="button" className="bg-[#ffaa01] hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded w-full cursor-pointer">
                 Share
             </button>
+            )}
             
             <div className="mt-4 flex flex-wrap">
                 

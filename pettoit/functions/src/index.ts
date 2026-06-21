@@ -35,7 +35,9 @@ export const serveApp = onRequest({ cors: true, region: "us-central1" }, async (
       <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
         <url><loc>${baseUrl}/</loc></url>
         <url><loc>${baseUrl}/login</loc></url>
-        <url><loc>${baseUrl}/register</loc></url>`;
+        <url><loc>${baseUrl}/register</loc></url>
+        <url><loc>${baseUrl}/about</loc></url>
+        `;
 
       petsSnap.forEach(doc => {
         const data = doc.data();

@@ -11,7 +11,7 @@ function AmazonAdds({ imageUrl, linkUrl,  title, description, price, shoplink })
                     {title}
                 </a>
             </h2>
-            <img src={imageUrl} alt={title} className="w-full h-64 object-fit rounded" />
+            <img loading="lazy" src={imageUrl} alt={title} className="w-full h-64 object-fit rounded" />
             <h3 className="text-base text-white">{truncateDescription(description)}</h3>
             <p className="text-xl font-bold text-white">${price}</p>
             

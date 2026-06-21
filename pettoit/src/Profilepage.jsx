@@ -13,7 +13,163 @@ import { useNavigate } from "react-router";
 import { validateMediaFile } from "./utils/security";
 import FollowerItem from "./Followers";
 
-function Profilecard() {
+/*------------Cover Phot Component Starts-------------*/
+const CoverPhoto = ({ coverPhoto, cover }) => {
+  const [position, setPosition] = useState({ x: 50, y: 50 });
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    
+    const { width, height, left, top } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    
+    setPosition({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+    });
+  };
+
+  return (
+    <div 
+      className="w-full h-60 border-b-4 border-white overflow-hidden cursor-move relative"
+      onMouseDown={() => setIsDragging(true)}
+      onMouseUp={() => setIsDragging(false)}
+      onMouseLeave={() => setIsDragging(false)}
+      onMouseMove={handleMouseMove}
+    >
+      <img 
+        src={coverPhoto instanceof File ? URL.createObjectURL(coverPhoto) : coverPhoto || cover} 
+        alt="cover photo" 
+        draggable={false}
+        className="object-cover w-full h-full rounded-lg select-none" 
+        style={{ objectPosition: `${position.x}% ${position.y}%` }}
+      />
+    </div>
+  );
+};
+
+/*------------Cover Phot Component Ends-------------*/
+
+/*-----Profile Tabs Starts-----*/
+function ProfileTabs({ 
+    profileUid, 
+    myUid, 
+    myUsername, 
+    myProfilePic, 
+    userPosts, 
+    petName, 
+    petType, 
+    breed, 
+    age, 
+    location, 
+    bio,
+    onFollowerCountChange
+}) {
+
+    const [activeTab, setActiveTab] = useState('posts');
+    const [followersList, setFollowersList] = useState([]);
+
+    useEffect(() => {
+        if (!profileUid) return;
+
+        const followersRef = collection(db, "pets", profileUid, "followers");
+        
+        const unsubscribe = onSnapshot(followersRef, (snapshot) => {
+            const followers = snapshot.docs.map(doc => ({
+                uid: doc.id,
+                ...doc.data()
+            }));
+            setFollowersList(followers);
+            
+            // Send the count up to the parent card only when database changes
+            if (onFollowerCountChange) {
+                onFollowerCountChange(followers.length);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [profileUid, onFollowerCountChange]);
+
+    return (
+        <div className="tabs md:w-3/4 lg:w-1/2 bg-white shadow-2xl pt-5">
+            <div role="tablist" aria-labelledby="tabs-title">
+                <button 
+                    role="tab" 
+                    id="posts-tab"
+                    aria-controls="posts-panel"
+                    aria-selected={activeTab === 'posts'} 
+                    onClick={() => setActiveTab('posts')}
+                >Posts</button>
+                
+                <button 
+                    role="tab" 
+                    id="about-tab"
+                    aria-controls="about-panel"
+                    aria-selected={activeTab === 'about'} 
+                    onClick={() => setActiveTab('about')}
+                >About</button>
+                
+                <button 
+                    role="tab" 
+                    id="friends-tab" 
+                    aria-controls="followers-panel"
+                    aria-selected={activeTab === 'followers'} 
+                    onClick={() => setActiveTab('followers')}
+                >Followers</button>
+            </div>
+
+            <div id="posts-panel" role="tabpanel" aria-labelledby="posts-tab" hidden={activeTab !== 'posts'}>
+
+    {auth.currentUser?.uid === profileUid && <CreatePost />}
+    
+    {userPosts && userPosts.length > 0 ? (
+        userPosts.map((post, index) => (
+            <PostCard key={post.id} postId={post.id} priority={index < 8} />
+        ))
+    ) : (
+        <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
+            <p>No posts to show yet. 🐾</p>
+        </div>
+    )}
+                
+            </div>
+
+            <div id="about-panel" role="tabpanel" aria-labelledby="about-tab" hidden={activeTab !== 'about'}>
+                <p><strong>Pet Name:</strong> {petName}</p>
+                <p><strong>Pet Type:</strong> {petType}</p>
+                <p><strong>Breed:</strong> {breed}</p>
+                <p><strong>Age:</strong> {age}</p>
+                <p><strong>Location:</strong> {location}</p>
+                <p><strong>Bio:</strong> {bio}</p>
+            </div>
+
+            <div id="followers-panel" role="tabpanel" aria-labelledby="friends-tab" hidden={activeTab !== 'followers'}>
+                {followersList.length > 0 ? (
+                    <div className="flex flex-col divide-y divide-gray-100">
+                        {followersList.map((follower) => (
+                            <FollowerItem 
+                                key={follower.uid} 
+                                follower={follower}
+                                myUid={myUid}
+                                myUsername={myUsername}
+                                myProfilePic={myProfilePic}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100 mx-4 mb-4">
+                        <p>No followers yet. 🐾</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+/*-----Profile Tabs Ends */
+
+function Profilecard({ myUid, myUsername, myProfilePic }) {
     const { username } = useParams();
     const [isEditing, setIsEditing] = useState(false);
     const [cooldown, setCooldown] = useState(0);
@@ -27,10 +183,12 @@ function Profilecard() {
     const [age, setAge] = useState("");
     const [location, setLocation] = useState("");
     const [bio, setBio] = useState("");
+    const [petRegistrationDate, setPetRegistrationDate] = useState(null);
     const [userPosts, setUserPosts] = useState([]);
     const [profileUid, setProfileUid] = useState(null);
     const [editableUsername, setEditableUsername] = useState("");
     const [isVerified, setIsVerified] = useState(false);
+    const [followerCount, setFollowerCount] = useState(0);
 
     useEffect(() => {
     let timer;
@@ -70,6 +228,13 @@ useEffect(() => {
                 const userDoc = querySnapshot.docs[0];
                 const data = userDoc.data();
                 const uid = userDoc.id;
+                const registrationDate = data.createdAt ? data.createdAt.toDate() : null;
+                const fullDate = registrationDate 
+  ? new Intl.DateTimeFormat('en-US', {
+      dateStyle: 'full', 
+      timeStyle: 'long', 
+    }).format(registrationDate)
+  : "No registration date available";
 
                 setProfileUid(uid);
 
@@ -82,6 +247,7 @@ useEffect(() => {
                 setLocation(data.location || "");
                 setBio(data.bio || "");
                 setEditableUsername(data.username || "");
+                setPetRegistrationDate(fullDate);
 
                 const postsQuery = query(
                     collection(db, "posts"),
@@ -209,103 +375,6 @@ useEffect(() => {
     }
 }
 
-function ProfileTabs({ profileUid, myUid, myUsername, myProfilePic }) {
-
-    const [activeTab, setActiveTab] = useState('posts');
-    const [followersList, setFollowersList] = useState([]);
-
-    useEffect(() => {
-        if (!profileUid) return;
-
-        const followersRef = collection(db, "pets", profileUid, "followers");
-        
-        const unsubscribe = onSnapshot(followersRef, (snapshot) => {
-            const followers = snapshot.docs.map(doc => ({
-                uid: doc.id,
-                ...doc.data()
-            }));
-            setFollowersList(followers);
-        });
-
-        return () => unsubscribe();
-    }, [profileUid]);
-
-    return (
-        <div className="tabs md:w-3/4 lg:w-1/2 bg-white shadow-2xl pt-5">
-            <div role="tablist" aria-labelledby="tabs-title">
-                <button 
-                    role="tab" 
-                    id="posts-tab"
-                    aria-controls="posts-panel"
-                    aria-selected={activeTab === 'posts'} 
-                    onClick={() => setActiveTab('posts')}
-                >Posts</button>
-                
-                <button 
-                    role="tab" 
-                    id="about-tab"
-                    aria-controls="about-panel"
-                    aria-selected={activeTab === 'about'} 
-                    onClick={() => setActiveTab('about')}
-                >About</button>
-                
-                <button 
-                    role="tab" 
-                    id="friends-tab" 
-                    aria-controls="followers-panel"
-                    aria-selected={activeTab === 'followers'} 
-                    onClick={() => setActiveTab('followers')}
-                >Followers</button>
-            </div>
-
-            <div id="posts-panel" role="tabpanel" aria-labelledby="posts-tab" hidden={activeTab !== 'posts'}>
-
-    {auth.currentUser?.uid === profileUid && <CreatePost />}
-    
-    {userPosts && userPosts.length > 0 ? (
-        userPosts.map((post, index) => (
-            <PostCard key={post.id} postId={post.id} priority={index < 8} />
-        ))
-    ) : (
-        <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
-            <p>No posts to show yet. 🐾</p>
-        </div>
-    )}
-                
-            </div>
-
-            <div id="about-panel" role="tabpanel" aria-labelledby="about-tab" hidden={activeTab !== 'about'}>
-                <p><strong>Pet Name:</strong> {petName}</p>
-                <p><strong>Pet Type:</strong> {petType}</p>
-                <p><strong>Breed:</strong> {breed}</p>
-                <p><strong>Age:</strong> {age}</p>
-                <p><strong>Location:</strong> {location}</p>
-                <p><strong>Bio:</strong> {bio}</p>
-            </div>
-
-            <div id="followers-panel" role="tabpanel" aria-labelledby="friends-tab" hidden={activeTab !== 'followers'}>
-                {followersList.length > 0 ? (
-                    <div className="flex flex-col divide-y divide-gray-100">
-                        {followersList.map((follower) => (
-                            <FollowerItem 
-                                key={follower.uid} 
-                                follower={follower}
-                                myUid={myUid}
-                                myUsername={myUsername}
-                                myProfilePic={myProfilePic}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100 mx-4 mb-4">
-                        <p>No followers yet. 🐾</p>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
-
 useEffect(() => {
     const objectUrl = coverPhoto instanceof File ? URL.createObjectURL(coverPhoto) : null;
 
@@ -327,42 +396,6 @@ useEffect(() => {
         }
     };
 }, [profilePic]);
-
-const CoverPhoto = ({ coverPhoto, cover }) => {
-  const [position, setPosition] = useState({ x: 50, y: 50 });
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    
-    const { width, height, left, top } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    
-    setPosition({
-      x: Math.max(0, Math.min(100, x)),
-      y: Math.max(0, Math.min(100, y)),
-    });
-  };
-
-  return (
-    <div 
-      className="w-full h-60 border-b-4 border-white overflow-hidden cursor-move relative"
-      onMouseDown={() => setIsDragging(true)}
-      onMouseUp={() => setIsDragging(false)}
-      onMouseLeave={() => setIsDragging(false)}
-      onMouseMove={handleMouseMove}
-    >
-      <img 
-        src={coverPhoto instanceof File ? URL.createObjectURL(coverPhoto) : coverPhoto || cover} 
-        alt="cover photo" 
-        draggable={false}
-        className="object-cover w-full h-full rounded-lg select-none" 
-        style={{ objectPosition: `${position.x}% ${position.y}%` }}
-      />
-    </div>
-  );
-};
 
 const handleResendEmail = async () => {
     if (cooldown > 0) return;
@@ -389,7 +422,15 @@ const showVerificationPrompt = isProfileOwner && !isVerified;
             <CoverPhoto coverPhoto={coverPhoto} cover={cover} />
             <div className="profilePic w-30 h-30 border-4 border-white rounded-full relative bottom-15 left-6 bg-white"><img src={profilePic instanceof File ? URL.createObjectURL(profilePic) : profilePic || dogPawPrint} alt="profile picture" className="object-cover rounded-full" /></div>
             
-            <h2 className="text-xl font-bold absolute bottom-10 left-6">{username}'s Profile Page 🐾</h2>
+            <h2 className="text-xl font-bold absolute bottom-20 left-6">{username}'s Profile Page 🐾</h2>
+            {followerCount !== 0 && (
+                <p>{followerCount} Followers</p>
+            )}
+
+            {petRegistrationDate && (
+                <p className="text-md text-black">Joined on {petRegistrationDate}</p>
+            )}
+            
 
 {showVerificationPrompt && (
     <div className="absolute top-50 right-35 z-50 text-center text-green-500 font-bold bg-green-100 p-3 rounded w-1/2 mx-auto my-2 flex flex-col items-center gap-3">
@@ -430,7 +471,20 @@ const showVerificationPrompt = isProfileOwner && !isVerified;
         </div>
         {/* 3. Conditionally render the form */}
         {isEditing && renderEditForm()}
-        <ProfileTabs profileUid={profileUid} />
+        <ProfileTabs 
+    profileUid={profileUid} 
+    myUid={myUid}
+    myUsername={myUsername}
+    myProfilePic={myProfilePic}
+    userPosts={userPosts}
+    petName={petName}
+    petType={petType}
+    breed={breed}
+    age={age}
+    location={location}
+    bio={bio}
+    onFollowerCountChange={setFollowerCount}
+/>
         </>
     );
 }
