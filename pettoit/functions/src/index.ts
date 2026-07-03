@@ -76,6 +76,9 @@ export const serveApp = onRequest({ cors: true, region: "us-central1" }, async (
     } else if (url === "/login") {
       title = "Login to Pettoit - Connect with Fellow Pet Lovers!";
       description = "Access your Pettoit account to share updates about your pets, connect with other pet owners, and explore the pet-loving community!";
+    } else if (url === "/about") {
+      title = "About Pettoit - The Ultimate Social Media Platform for Pets";
+      description = "Learn more about Pettoit, the social media platform designed specifically for pet lovers to connect, share, and celebrate their furry friends.";
     } else if (pathParts[0] === "profile" && pathParts[1]) {
       const username = pathParts[1];
       const userQuery = await admin.firestore().collection("pets")

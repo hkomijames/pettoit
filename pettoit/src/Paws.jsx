@@ -56,8 +56,8 @@ function Paws({ postId }) {
     >
       <svg viewBox="0 0 100 100" className="w-10 h-10 drop-shadow-lg drop-shadow-green-700">
         <g 
-          stroke={liked ? "#ffaa01" : "#ffaa01"} 
-          fill={liked ? "#ffaa01" : "white"} 
+          stroke={liked ? "#1A365D" : "#1A365D"} 
+          fill={liked ? "#1A365D" : "white"} 
           strokeWidth="4"
           className="transition-colors duration-500"
         >
@@ -68,7 +68,7 @@ function Paws({ postId }) {
           <ellipse cx="75" cy="45" rx="8" ry="11" transform="rotate(20 75 45)" />
         </g>
       </svg>
-      <span className={`text-md font-semibold ${liked ? 'text-green-500' : 'text-black'}`}>
+      <span className={`text-md font-semibold ${liked ? 'text-[#1A365D]' : 'text-black'}`}>
         {localCount > 0 ? localCount : ""} {localCount === 1 ? 'Paw' : 'Paws'}
       </span>
     </button>

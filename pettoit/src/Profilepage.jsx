@@ -126,6 +126,7 @@ function ProfileTabs({
     
     {userPosts && userPosts.length > 0 ? (
         userPosts.map((post, index) => (
+            
             <PostCard key={post.id} postId={post.id} priority={index < 8} />
         ))
     ) : (
@@ -418,18 +419,25 @@ const showVerificationPrompt = isProfileOwner && !isVerified;
 
     return (
         <>
-        <div className="profilecard w-full md:w-3/4 lg:w-1/2 min-h-96 p-3 rounded-t-2xl bg-white shadow-2xl flex flex-col items-start gap-1 relative">
+        <div className="profilecard w-full md:w-3/4 lg:w-1/2 p-3 rounded-t-2xl bg-white shadow-2xl flex flex-col items-start gap-1 relative">
             <CoverPhoto coverPhoto={coverPhoto} cover={cover} />
-            <div className="profilePic w-30 h-30 border-4 border-white rounded-full relative bottom-15 left-6 bg-white"><img src={profilePic instanceof File ? URL.createObjectURL(profilePic) : profilePic || dogPawPrint} alt="profile picture" className="object-cover rounded-full" /></div>
+            <div className="profile-info-box relative bottom-10 w-full">
             
-            <h2 className="text-xl font-bold absolute bottom-20 left-6">{username}'s Profile Page 🐾</h2>
-            {followerCount !== 0 && (
-                <p>{followerCount} Followers</p>
+            <div className="flex gap-4 m-4">
+                <img src={profilePic instanceof File ? URL.createObjectURL(profilePic) : profilePic || dogPawPrint} alt="profile picture" className="object-cover profilePic w-30 h-30 border-white rounded-xl" />
+                <div>
+                <h2 className="text-xl font-bold text-[#1A365D]">{username}</h2>
+                {followerCount !== 0 && (
+                <p className="text-md text-[#1A365D]">{followerCount} Followers</p>
             )}
+                </div>
 
-            {petRegistrationDate && (
-                <p className="text-md text-black">Joined on {petRegistrationDate}</p>
+            </div>
+
+{petRegistrationDate && (
+                <p className="text-md text-[#1A365D] p-4">Joined on {petRegistrationDate}</p>
             )}
+            </div>
             
 
 {showVerificationPrompt && (

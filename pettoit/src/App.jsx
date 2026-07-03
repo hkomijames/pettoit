@@ -37,6 +37,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(true);
+  const [profilePicture, setProfilePicture] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -46,6 +47,7 @@ function App() {
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             setUsername(userDoc.data().username);
+            setProfilePicture(userDoc.data().profilePic || "");
           }
           setUser(currentUser);
         } catch (error) {
@@ -54,6 +56,7 @@ function App() {
       } else {
         setUser(null);
         setUsername("");
+        setProfilePicture("");
       }
       setLoading(false);
     });
@@ -67,8 +70,9 @@ function App() {
       {/* Put the tracker inside BrowserRouter so it can read the routes */}
       <AnalyticsTracker /> 
       
-      <Navbar user={user} username={username} />
+      <Navbar user={user} username={username} profilepicture={profilePicture} />
       
+      <main id="main-content">
       <Suspense fallback={<PetLoader />}>
         <Routes>
           <Route path="/" element={<Homepage />} />
@@ -81,6 +85,8 @@ function App() {
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Suspense>
+      </main>
+      
       <Footer />
     </BrowserRouter>
   );

@@ -25,7 +25,7 @@ function RightSidebar() {
     ))}
 </div>
 
-<Link to="/about" className="block mt-4 text-center text-white font-semibold hover:underline mb-4">
+<Link to="/about" className="block mt-4 text-center text-[#1A365D] font-semibold hover:underline mb-4">
     About Us/Contact Us
 </Link>
             </aside>

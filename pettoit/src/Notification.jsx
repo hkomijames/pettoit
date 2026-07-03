@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { db } from "./firebase";
 import { doc, updateDoc, collection, query, onSnapshot, orderBy } from 'firebase/firestore';
 import { Link } from 'react-router';
+import { Bell } from 'lucide-react';
 
 const Notification = ({ myUid }) => {
   const [notifications, setNotifications] = useState([]);
@@ -57,7 +58,10 @@ const Notification = ({ myUid }) => {
         }}
       >
     
-        <span role="img" aria-hidden="true" style={{ fontSize: '24px' }}>🔔</span>
+        <span role="img" aria-hidden="true" style={{ fontSize: '18px', color: '#1A365D' }}><div className='flex flex-col font-bold items-center'>
+  <Bell size={26} className="cursor-pointer stroke-0 fill-[#1A365D]" />
+  Notifications
+</div></span>
         
         {unreadCount > 0 && (
           <span className="badge" aria-hidden="true" style={{

@@ -6,7 +6,7 @@ function ShareButtons({ url, title, imageUrl }) {
     return (
         <div>
             {location.pathname !== '/' && !location.pathname.startsWith("/profile/") && (
-                <button type="button" className="bg-[#ffaa01] hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded w-full cursor-pointer">
+                <button type="button" className="bg-[#1A365D] hover:bg-[#0F2A4D] text-white font-bold py-2 px-4 rounded w-full cursor-pointer">
                 Share
             </button>
             )}

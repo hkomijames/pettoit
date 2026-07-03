@@ -174,7 +174,7 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
   <img
     src={displayAvatar}
     alt="Avatar"
-    className="w-10 h-10 rounded-full object-cover border border-gray-100 bg-gray-50"
+    className="w-10 h-10 rounded-full object-cover border border-[#1A365D] bg-gray-50"
   />
 
   <div className="flex-1">
@@ -382,7 +382,7 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
           aria-haspopup="true"
           aria-expanded={isShareBtnHidden}
           type="button"
-          className="bg-[#ffaa01] text-white w-20 h-10 rounded font-bold cursor-pointer">
+          className="bg-[#1A365D] hover:bg-[#0F2A4D] text-white w-20 h-10 rounded font-bold cursor-pointer">
             Share
           </button>
           )}
@@ -390,7 +390,7 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
 <Link to={`/post/${postId}`}>
             <div className="flex items-center gap-1.5 mt-3 hover:text-blue-500 transition-colors cursor-pointer">
               <MessageCircle size={20} color="var(--gotham-green)" />
-              <span className="text-sm font-semibold text-(--sea-green)">{!commentCount ? "" : commentCount} Comment{commentCount !== 1 ? 's' : ''}</span>
+              <span className="text-sm font-semibold text-[#1A365D]">{!commentCount ? "" : commentCount} Comment{commentCount !== 1 ? 's' : ''}</span>
             </div>
             </Link>
         </div>

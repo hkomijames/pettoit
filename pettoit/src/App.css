@@ -53,25 +53,50 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+.profile-info-box {
+  width: 90%;
+  height: auto;
+  border-radius: 20px;
+  margin: 0 auto;
+  z-index: 1;
+  background-color: white;
+  border: 2px solid #1A365D;
+  box-shadow: inset -1px 1px 7px rgba(0,0,0,.2), inset 1px -1px 7px rgba(0,0,0,.2), 1px 12px 5px rgba(0,0,0,.4), 4px 3px 8px rgba(0,0,0,.4), 5px 10px 10px rgba(0,0,0,.2), -5px 10px 10px rgba(0,0,0,.4);
+}
+
 .post-success-message {
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
 }
 
 body {
-  background-color: var(--sea-green);
+  background: rgba(248, 215, 190, 1);
+box-shadow: inset -1px 1px 7px rgba(0,0,0,.1), inset 1px -1px 7px rgba(0,0,0,.1), 1px 12px 5px rgba(0,0,0,.2), 4px 3px 8px rgba(0,0,0,.2), 5px 10px 10px rgba(0,0,0,.1), -5px 10px 10px rgba(0,0,0,.2);
+
   font-family: 'Poppins', sans-serif;
   scroll-behavior: smooth;
   margin-bottom: 0px;
 }
 
 .nav {
-  background-color: var(--gotham-green);
+  background: rgba(240,180,135,1);
+  box-shadow: inset -1px 1px 7px rgba(0,0,0,.2), inset 1px -1px 7px rgba(0,0,0,.2), 1px 12px 5px rgba(0,0,0,.4), 4px 3px 8px rgba(0,0,0,.4), 5px 10px 10px rgba(0,0,0,.2), -5px 10px 10px rgba(0,0,0,.4);
+}
+
+.check-out-btn, .new-members-h2 {
+  background: rgba(26, 54, 93, 1); 
+  box-shadow: inset -1px 1px 7px rgba(0,0,0,.2), inset 1px -1px 7px rgba(0,0,0,.2), 1px 12px 5px rgba(0,0,0,.4), 4px 3px 8px rgba(0,0,0,.4), 5px 10px 10px rgba(0,0,0,.2), -5px 10px 10px rgba(0,0,0,.4); 
+}
+
+.logo-paw-print {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
 }
 
 .register-login-btn {
-  background-color: hsl(40, 97%, 46%);
-  color: white;
+  background: rgb(26, 54, 93);
+  color: #ffffff;
   border: none;
   transition: background-color 0.3s ease;
 }
