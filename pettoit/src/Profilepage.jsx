@@ -1,10 +1,9 @@
-import LogoutBtn from "./Logout";
 import { useParams } from "react-router";
 import { useState, useEffect } from "react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, auth, storage } from "./firebase";
 import { sendEmailVerification, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, orderBy, collection, query, where, getDocs, onSnapshot } from "firebase/firestore";
+import { doc, setDoc, orderBy, collection, query, where, getDocs, onSnapshot, getDoc } from "firebase/firestore";
 import CreatePost from "./CreatePost";
 import PostCard from "./PostCard";
 import dogPawPrint from "./assets/dog-paw-print.png";
@@ -12,6 +11,8 @@ import cover from "./assets/cover.PNG";
 import { useNavigate } from "react-router";
 import { validateMediaFile } from "./utils/security";
 import FollowerItem from "./Followers";
+import { Link } from "react-router";
+import FollowButton from "./FollowButton";
 
 /*------------Cover Phot Component Starts-------------*/
 const CoverPhoto = ({ coverPhoto, cover }) => {
@@ -190,6 +191,9 @@ function Profilecard({ myUid, myUsername, myProfilePic }) {
     const [editableUsername, setEditableUsername] = useState("");
     const [isVerified, setIsVerified] = useState(false);
     const [followerCount, setFollowerCount] = useState(0);
+    const [myProfile, setMyProfile] = useState(null);
+const [loadingMyProfile, setLoadingMyProfile] = useState(true);
+const [isFollowing, setIsFollowing] = useState(false);
 
     useEffect(() => {
     let timer;
@@ -414,6 +418,28 @@ const handleResendEmail = async () => {
     }
 };
 
+useEffect(() => {
+  
+  if (!auth.currentUser?.uid) return;
+
+  const fetchMyOwnData = async () => {
+    try {
+      const myDocRef = doc(db, 'pets', auth.currentUser.uid);
+      const snapshot = await getDoc(myDocRef);
+
+      if (snapshot.exists()) {
+        setMyProfile(snapshot.data());
+      }
+    } catch (error) {
+      console.error("Error fetching personal profile data:", error);
+    } finally {
+      setLoadingMyProfile(false);
+    }
+  };
+
+  fetchMyOwnData();
+}, [auth.currentUser?.uid]);
+
 const isProfileOwner = auth.currentUser?.uid === profileUid;
 const showVerificationPrompt = isProfileOwner && !isVerified;
 
@@ -430,6 +456,31 @@ const showVerificationPrompt = isProfileOwner && !isVerified;
                 {followerCount !== 0 && (
                 <p className="text-md text-[#1A365D]">{followerCount} Followers</p>
             )}
+
+            { /* follow button */ }
+ {!loadingMyProfile && auth.currentUser?.uid !== profileUid && (
+  <FollowButton 
+    myUid={auth.currentUser?.uid}
+    targetUid={profileUid}        
+    myUsername={myProfile?.username}   
+    myProfilePic={myProfile?.profilePic} 
+    targetUsername={username} 
+    targetProfilePic={profilePic}
+    setIsFollowingExternal={setIsFollowing} 
+  />
+)}
+            
+            { /* message button */ }
+            
+{auth.currentUser?.uid !== profileUid && isFollowing && (
+    <Link to={`/chat/${username}`}
+    className="bg-blue-500 hover:bg-[#1A365D] text-white px-2 py-1 cursor-pointer rounded mt-2 inline-block"
+state={{ recipientUid: profileUid }}
+>
+    Message
+</Link>
+)}
+    
                 </div>
 
             </div>
@@ -453,7 +504,7 @@ const showVerificationPrompt = isProfileOwner && !isVerified;
     onClick={handleResendEmail}
     disabled={cooldown > 0}
     className={`${
-        cooldown > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 cursor-pointer'
+        cooldown > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-[#1A365D] cursor-pointer'
     } text-white text-xs py-1.5 px-4 rounded-full transition-all shadow-sm`}
 >
     {cooldown > 0 ? `Wait ${cooldown}s to resend` : "Resend Verification Email"}
@@ -468,12 +519,6 @@ const showVerificationPrompt = isProfileOwner && !isVerified;
                 >
                     Edit Profile
                 </button>
-            )}
-            
-            {auth.currentUser?.uid === profileUid && (
-                <div className="mt-4 absolute bottom-15 right-3">
-                <LogoutBtn />
-            </div>
             )}
          
         </div>

@@ -134,18 +134,6 @@ input:focus {
   box-shadow: 0 0 5px var(--golden-yellow);
 }
 
-textarea {
-  resize: none;
-}
-
-#follow-btn {
-  background-color: var(--gotham-green);
-  color: white;
-  cursor: pointer;
-  padding: 0 10px;
-  border-radius: 50px;
-  font-weight: bold
-}
 
 .about-contact {
   max-width: 800px;

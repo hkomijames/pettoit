@@ -4,9 +4,26 @@ import * as logger from "firebase-functions/logger";
 import * as admin from 'firebase-admin';
 import * as fs from "fs";
 import * as path from "path";
+import { LRUCache } from "lru-cache"; // 🚀 Imported clean caching library
 
 admin.initializeApp();
 setGlobalOptions({ maxInstances: 10 });
+
+// 🚀 Setup clean interface structures for structural type safety
+interface CachePayload {
+  title: string;
+  description: string;
+  image: string;
+  ogType: string;
+  videoUrl: string;
+  fetchedAt: number;
+}
+
+// Persist data maps globally. Entries are evaluated as "stale" after 5 minutes (300,000 ms)
+const seoDataCache = new LRUCache<string, CachePayload>({
+  max: 1000, 
+  ttl: 1000 * 60 * 5,
+});
 
 export const serveApp = onRequest({ cors: true, region: "us-central1" }, async (req, res): Promise<any> => {
   const userAgent = req.get('User-Agent') || '';
@@ -62,7 +79,7 @@ export const serveApp = onRequest({ cors: true, region: "us-central1" }, async (
 
   const pathParts = url.split("/").filter(p => p !== "");
   
-  // Default values
+  // Default fallback values
   let title = "Pettoit - Social Media for Pets";
   let description = "Register your pets (dogs, cats, birds, etc.) and connect with other pet lovers on Pettoit!, the ultimate social media platform for pets and animal enthusiasts.";
   let image = "https://firebasestorage.googleapis.com/v0/b/pettoit-1d815.firebasestorage.app/o/logo.PNG?alt=media&token=e68d9e3f-2f8e-45a4-9cd7-7e54b154e9d0";
@@ -79,47 +96,102 @@ export const serveApp = onRequest({ cors: true, region: "us-central1" }, async (
     } else if (url === "/about") {
       title = "About Pettoit - The Ultimate Social Media Platform for Pets";
       description = "Learn more about Pettoit, the social media platform designed specifically for pet lovers to connect, share, and celebrate their furry friends.";
-    } else if (pathParts[0] === "profile" && pathParts[1]) {
-      const username = pathParts[1];
-      const userQuery = await admin.firestore().collection("pets")
-        .where("username", "==", username).limit(1).get();
-      
-      if (!userQuery.empty) {
-        const userData = userQuery.docs[0].data();
-        title = `${userData.username}'s Profile | Pettoit`;
-        description = `Check out ${userData.username}'s profile on Pettoit! ${userData.bio || ""}`;
-      }
-    }
+    } 
     
-    if (pathParts[0] === "post" && pathParts[1]) {
-      const postId = pathParts[1];
-      const postSnap = await admin.firestore().collection("posts").doc(postId).get();
-      
-      if (postSnap.exists) {
-        const postData = postSnap.data() || {};
-        
-        // Title & Description
-        let dynamicTitle = postData.content 
-          ? postData.content.substring(0, 50).trim() + "..." 
-          : "New Pet Post";
-        title = `${dynamicTitle} | Pettoit`;
-        description = postData.content ? postData.content.substring(0, 150) + "..." : description;
+    // 🚀 UNIFIED SWR ENGINE PIPELINE
+    else if ((pathParts[0] === "profile" && pathParts[1]) || (pathParts[0] === "post" && pathParts[1])) {
+      const cacheKey = `${pathParts[0]}-${pathParts[1]}`;
+      const cachedData = seoDataCache.get(cacheKey);
+      const now = Date.now();
 
-        // Image Selection Priority
-        if (Array.isArray(postData.imageURLs) && postData.imageURLs.length > 0) {
-          image = postData.imageURLs[0];
-        } 
-        else if (postData.imageURL) {
-          image = postData.imageURL;
-        }
-        else if (postData.videoThumbnail) {
-          image = postData.videoThumbnail;
-        }
+      // Core asynchronous background data resolution tracking module
+      const fetchAndStoreFreshData = async () => {
+        let freshTitle = title;
+        let freshDesc = description;
+        let freshImg = image;
+        let freshType = ogType;
+        let freshVid = videoUrl;
 
-        // VIDEO LOGIC
-        if (postData.videoURL) {
-          ogType = "video.other";
-          videoUrl = postData.videoURL;
+        try {
+          if (pathParts[0] === "profile") {
+            const username = pathParts[1];
+            const userQuery = await admin.firestore().collection("pets")
+              .where("username", "==", username).limit(1).get();
+            
+            if (!userQuery.empty) {
+              const userData = userQuery.docs[0].data();
+              freshTitle = `${userData.username}'s Profile | Pettoit`;
+              freshDesc = `Check out ${userData.username}'s profile on Pettoit! ${userData.bio || ""}`;
+            }
+          } else if (pathParts[0] === "post") {
+            const postId = pathParts[1];
+            const postSnap = await admin.firestore().collection("posts").doc(postId).get();
+            
+            if (postSnap.exists) {
+              const postData = postSnap.data() || {};
+              let dynamicTitle = postData.content 
+                ? postData.content.substring(0, 50).trim() + "..." 
+                : "New Pet Post";
+              freshTitle = `${dynamicTitle} | Pettoit`;
+              freshDesc = postData.content ? postData.content.substring(0, 150) + "..." : description;
+
+              if (Array.isArray(postData.imageURLs) && postData.imageURLs.length > 0) {
+                freshImg = postData.imageURLs[0];
+              } else if (postData.imageURL) {
+                freshImg = postData.imageURL;
+              } else if (postData.videoThumbnail) {
+                freshImg = postData.videoThumbnail;
+              }
+
+              if (postData.videoURL) {
+                freshType = "video.other";
+                freshVid = postData.videoURL;
+              }
+            }
+          }
+
+          const freshPayload: CachePayload = {
+            title: freshTitle,
+            description: freshDesc,
+            image: freshImg,
+            ogType: freshType,
+            videoUrl: freshVid,
+            fetchedAt: Date.now()
+          };
+
+          seoDataCache.set(cacheKey, freshPayload);
+          return freshPayload;
+        } catch (err) {
+          logger.error(`SWR Execution Fault on route identifier: ${cacheKey}`, err);
+          return null;
+        }
+      };
+
+      if (cachedData) {
+        // Instant response using cached values
+        title = cachedData.title;
+        description = cachedData.description;
+        image = cachedData.image;
+        ogType = cachedData.ogType;
+        videoUrl = cachedData.videoUrl;
+
+        // If data has been in memory longer than 5 mins, quietly refresh it in the background
+        if (now - cachedData.fetchedAt > 1000 * 60 * 5) {
+          logger.info(`SWR Hit [STALE]: Refreshing background worker for ${cacheKey}`);
+          fetchAndStoreFreshData(); // 🔥 Asynchronous background invocation
+        } else {
+          logger.info(`SWR Hit [FRESH]: Cache target served smoothly for ${cacheKey}`);
+        }
+      } else {
+        // Initial Cache Miss: Fall back to a synchronous fetch to ensure scrapers see metadata
+        logger.info(`SWR Miss: Synchronous fallback processing for key: ${cacheKey}`);
+        const absoluteFresh = await fetchAndStoreFreshData();
+        if (absoluteFresh) {
+          title = absoluteFresh.title;
+          description = absoluteFresh.description;
+          image = absoluteFresh.image;
+          ogType = absoluteFresh.ogType;
+          videoUrl = absoluteFresh.videoUrl;
         }
       }
     }
@@ -139,7 +211,11 @@ export const serveApp = onRequest({ cors: true, region: "us-central1" }, async (
                .replace(/__TYPE__/g, ogType)
                .replace(/__VIDEO_URL__/g, videoUrl);
 
-    res.set("Cache-Control", "public, max-age=300, s-maxage=600");
+    // CACHE CONTROL FIX: Force browsers to validate HTML structure every single time
+    res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+    
     return res.status(200).send(html);
   } catch (err) {
     logger.error("File Read Error", err);

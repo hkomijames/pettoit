@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore"; // For the text data
 import { getStorage } from "firebase/storage";   // For the profile pic
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getDatabase } from "firebase/database"; // For the chat messages
 
 const firebaseConfig = {
   apiKey: "AIzaSyCt7-LGnhiN6no5w8CAizSJ_TtGrGAXbcM",
@@ -9,11 +10,13 @@ const firebaseConfig = {
   projectId: "pettoit-1d815",
   storageBucket: "pettoit-1d815.firebasestorage.app",
   messagingSenderId: "581847011717",
-  appId: "1:581847011717:web:f0c55b43199a6a90cb34ec"
+  appId: "1:581847011717:web:f0c55b43199a6a90cb34ec",
+  databaseURL: "https://pettoit-1d815-default-rtdb.firebaseio.com"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+export const rtdb = getDatabase(app);
 
 // Export these so you can use them in your components
 export const db = getFirestore(app);

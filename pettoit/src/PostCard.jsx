@@ -174,16 +174,16 @@ const q = query(collection(db, "comments"), where("postId", "==", postId));
   <img
     src={displayAvatar}
     alt="Avatar"
-    className="w-10 h-10 rounded-full object-cover border border-[#1A365D] bg-gray-50"
+    className="w-10 h-10 rounded-full object-contain border border-[#1A365D] bg-gray-50"
   />
 
   <div className="flex-1">
   <div className="flex items-center gap-2">
-    <h3 className="font-bold text-sm text-black">
+    <h2 className="font-bold text-sm text-black">
       <Link to={`/profile/${authorProfile?.username}`}>
         @{displayName}
       </Link>
-    </h3>
+    </h2>
 
     {authorProfile && myProfile && (
       <FollowButton 

@@ -112,19 +112,19 @@ if (passwordStrength(password) !== 'Strong password!') {
             </div>
             <h2 className="registration-form-h2 text-2xl font-bold text-center pt-4">Registration Form</h2>
             <p className="text-center text-white">Already have an account? <Link to="/login"><button className="login-btn">Login</button></Link></p>
-            <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col lg:w-1/5 justify-center gap-1 lg:mx-auto mt-8 ml-8 mr-8">
+            <form ref={formRef} onSubmit={handleSubmit} autoComplete="on" className="flex flex-col lg:w-1/5 justify-center gap-1 lg:mx-auto mt-8 ml-8 mr-8">
    
                 <label htmlFor="username" className="text-white">Your Pet's Username</label>
-                <input className="border-2 border-[#002614] mb-2 p-1.5" type="text" id="username" placeholder="Choose a username" required value={username} onChange={(e) => setUsername(e.target.value)}/>
+                <input className="border-2 border-[#002614] mb-2 p-1.5" type="text" id="username" name="username" autoComplete="username" placeholder="Choose a username" required value={username} onChange={(e) => setUsername(e.target.value)}/>
                 
                 <label htmlFor="email" className="text-white">Email</label>
-                <input className="border-2 border-[#002614] mb-2 p-1.5" type="email" id="email" placeholder="Enter your email address" required value={email} onChange={(e) => setEmail(e.target.value)}/>
+                <input className="border-2 border-[#002614] mb-2 p-1.5" type="email" id="email" name="email" autoComplete="email" placeholder="Enter your email address" required value={email} onChange={(e) => setEmail(e.target.value)}/>
 
                 <label htmlFor="password" className="text-white">Password <span className={`${passwordStrength(password) === 'Weak password' ? 'text-red-500' : 'text-green-200'} font-bold rounded`}>{!password ? '' : passwordStrength(password)}</span></label>
                 <p ref={passwordStrengthRef} className="text-sm text-white mb-1 italic">
                     Password must be at least 8 characters long and include capital letters, lowercase letters, numbers, and any of these special characters (!@#$%^&*).
                 </p>
-                <input className="border-2 mb-2 p-1.5 border-[#002614]" type={isChecked ? "text" : "password"} id="password" placeholder="Enter your password" required value={password} onChange={(e) => setPassword(e.target.value)}/>
+                <input className="border-2 mb-2 p-1.5 border-[#002614]" type={isChecked ? "text" : "password"} id="password" name="password" autoComplete="new-password" placeholder="Enter your password" required value={password} onChange={(e) => setPassword(e.target.value)}/>
                 <div 
     aria-hidden="true" 
     style={{ opacity: 0, position: "absolute", top: 0, left: 0, height: 0, width: 0, zIndex: -1 }}

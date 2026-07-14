@@ -8,12 +8,12 @@ const FollowButton = ({
   myUsername, 
   myProfilePic, 
   targetUsername, 
-  targetProfilePic 
-}) => {
+  targetProfilePic,
+  setIsFollowingExternal
+}) => { 
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Hooks MUST come first, before any "return null"
   useEffect(() => {
     const checkStatus = async () => {
       if (!myUid || !targetUid) {
@@ -23,7 +23,10 @@ const FollowButton = ({
       try {
         const followRef = doc(db, "pets", myUid, "following", targetUid);
         const docSnap = await getDoc(followRef);
-        setIsFollowing(docSnap.exists());
+        
+        const following = docSnap.exists();
+        setIsFollowing(following);
+        setIsFollowingExternal?.(following); // 2. Tell the profile page if we are already following
       } catch (error) {
         console.error("Error checking follow status:", error);
       } finally {
@@ -31,44 +34,27 @@ const FollowButton = ({
       }
     };
     checkStatus();
-  }, [myUid, targetUid]);
+  }, [myUid, targetUid, setIsFollowingExternal]);
 
   const handleFollow = async () => {
     if (!myUid || !targetUid) return;
-
     const batch = writeBatch(db);
     const followingRef = doc(db, "pets", myUid, "following", targetUid);
     const followersRef = doc(db, "pets", targetUid, "followers", myUid);
 
     try {
-        
-        batch.set(followingRef, { 
-            followedAt: serverTimestamp(),
-            uid: targetUid,
-            username: targetUsername || "Pet Owner", 
-            profilePic: targetProfilePic || ""
-        });
-
-        batch.set(followersRef, { 
-            followedAt: serverTimestamp(),
-            uid: myUid,
-            username: myUsername || "Anonymous Pet", 
-            profilePic: myProfilePic || ""
-        });
+      batch.set(followingRef, { followedAt: serverTimestamp(), uid: targetUid, username: targetUsername || "Pet Owner", profilePic: targetProfilePic || "" });
+      batch.set(followersRef, { followedAt: serverTimestamp(), uid: myUid, username: myUsername || "Anonymous Pet", profilePic: myProfilePic || "" });
       
-        const notifRef = doc(db, "pets", targetUid, "notifications", `${myUid}_follow`);
-        batch.set(notifRef, {
-            type: 'follow',
-            fromId: myUid,
-            fromName: myUsername || "A pet owner", 
-            timestamp: serverTimestamp(),
-            read: false
-        });
-
-        await batch.commit();
-        setIsFollowing(true); 
+      const notifRef = doc(db, "pets", targetUid, "notifications", `${myUid}_follow`);
+      batch.set(notifRef, { type: 'follow', fromId: myUid, fromName: myUsername || "A pet owner", timestamp: serverTimestamp(), read: false });
+      
+      await batch.commit();
+      
+      setIsFollowing(true);
+      setIsFollowingExternal?.(true); // 3. Tell the profile page we just clicked follow
     } catch (error) {
-        console.error("Follow error:", error);
+      console.error("Follow error:", error);
     }
   };
 
@@ -76,11 +62,8 @@ const FollowButton = ({
   if (!myUid || myUid === targetUid || isFollowing) return null;
 
   return (
-    <button 
-      onClick={handleFollow}
-      id="follow-btn"
-    >
-      Follow
+    <button onClick={handleFollow} className="bg-blue-500 hover:bg-[#1A365D] text-white px-2 py-1 cursor-pointer rounded mt-2 mr-2 inline-block" > 
+      Follow 
     </button>
   );
 };

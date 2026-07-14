@@ -18,6 +18,11 @@ const VerifyEmail = lazy(() => import('./EmailVerification'));
 const PageNotFound = lazy(() => import('./404page'));
 const Profilecard = lazy(() => import('./Profilepage'));
 const AboutContact = lazy(() => import('./AboutContact'));
+const Chatpage = lazy(() => import('./Chatpage'));
+const Messages = lazy(() => import('./Messages'));
+const Settings = lazy(() => import('./AccountSettings'));
+const Notification = lazy(() => import('./Notification'));
+const ForgotPassword = lazy(() => import('./ForgotPassword'));
 
 // New component to track page views automatically
 function AnalyticsTracker() {
@@ -81,7 +86,12 @@ function App() {
           <Route path="/post/:postId" element={<PostDetail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/profile/:username" element={<Profilecard />} />
+          <Route path="/chat/:username" element={<Chatpage />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/profile/:username/settings" element={<Settings />} />
           <Route path="/about" element={<AboutContact />} />
+          <Route path="/notifications" element={<Notification myUid={user ? user.uid : null} />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Suspense>
